@@ -483,7 +483,9 @@ local RetroHelper_Variables = {
     duel_state = false,
     duel_target = "",
     isShop = false,
-    shopOpenTime = 0
+    shopOpenTime = GetTime(),
+    isTrainer = false,
+    trainerOpenTime = GetTime()
 }
 
 local RetroHelper_RecentInvList = {}
@@ -510,6 +512,8 @@ local RetroHelper_Events = {
     "DUEL_FINISHED",
     "MERCHANT_SHOW",
     "MERCHANT_CLOSED",
+    "TRAINER_SHOW",
+    "TRAINER_CLOSED",
     "BATTLEFIELDS_SHOW",
     "CHAT_MSG_COMBAT_CREATURE_VS_CREATURE_HITS"
 }
@@ -656,6 +660,16 @@ function RetroHelper_EventHandler.MERCHANT_CLOSED()
     RetroHelper_Variables.isShop = false
 end
 
+function RetroHelper_EventHandler.TRAINER_SHOW()
+    RetroHelper_Variables.isTrainer = true
+    RetroHelper_Variables.trainerOpenTime = GetTime()
+end
+
+function RetroHelper_EventHandler.TRAINER_CLOSED()
+    RetroHelper_Variables.isShop = false
+    _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFE400" .. "Auto learns Trainer Skills!!")
+end
+
 function RetroHelper_EventHandler.BATTLEFIELDS_SHOW()
     if (not IsShiftKeyDown()) then
         if (RetroHelper_GetCfg("CFG_FAST_BG", 1)) then
@@ -693,8 +707,13 @@ RetroHelper_OnUpdateHandler:SetScript(
                 TargetByName(RetroHelper_Variables.duel_target)
             end
         end
-        if (RetroHelper_Variables.isShop) and (GetTime() - RetroHelper_Variables.shopOpenTime <= 1) and (not CursorHasItem()) then
+        if (RetroHelper_Variables.isShop) and (GetTime() - RetroHelper_Variables.shopOpenTime >= 0.25) and (not CursorHasItem()) then
+            RetroHelper_Variables.shopOpenTime = GetTime() + 0.25
             RetroHelper_ShopRepair()
+        end
+        if (RetroHelper_Variables.isTrainer) and (GetTime() - RetroHelper_Variables.trainerOpenTime >= 0.25) then
+            RetroHelper_Variables.trainerOpenTime = GetTime() + 0.25
+            RetroHelper_LearnSkills()
         end
         if (RetroHelper_GetCfg("CFG_FAST_BG", 1)) then
             local bg_winner = GetBattlefieldWinner()
@@ -1248,6 +1267,206 @@ function RetroHelper_ShopRepair()
             _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Repaired all the items " .. COLOR_GOLD .. gold .. "g " .. COLOR_SILVER .. silver .. "s " .. COLOR_COPPER .. copper .. "c")
             RetroHelper_Shop.repair = nil
         end
+    end
+    if (true) then
+        local function getCount(x, y)
+            local _, itemCount = GetContainerItemInfo(x, y)
+            return itemCount
+        end
+        -- stack is how much item stack can buy onece to merchant : ex cake is 200
+        local function buyItem(iName, cNum, maxNum, stack)
+            for i = 1, GetMerchantNumItems() do
+                local link, tex, price, quantity, numAvailable, isUsable = GetMerchantItemInfo(i)
+                if (link) then
+                    if (string.find(link, iName)) then
+                        if (price <= GetMoney()) then
+                            if (stack > 1) then
+                                local bCount
+                                if (stack >= maxNum - cNum) then
+                                    bCount = maxNum - cNum
+                                elseif (stack < maxNum - cNum) then
+                                    bCount = stack
+                                end
+                                BuyMerchantItem(i, bCount)
+                                _print(
+                                    "|cff00D8FF" ..
+                                        "[RetroHelper]: " ..
+                                            "|cffFFFFFF" .. "Buying " .. GetMerchantItemLink(i) .. " " .. "|cffFFE400" .. " (" .. cNum .. "/" .. maxNum .. ")" .. "|cffFF007F" .. " + " .. bCount
+                                )
+                            else
+                                BuyMerchantItem(i)
+                                _print(
+                                    "|cff00D8FF" ..
+                                        "[RetroHelper]: " ..
+                                            "|cffFFFFFF" .. "Buying " .. GetMerchantItemLink(i) .. " " .. "|cffFFE400" .. " (" .. cNum .. "/" .. maxNum .. ")" .. "|cffFF007F" .. " + " .. stack
+                                )
+                            end
+                        else
+                            _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "You don't have enough money to buy " .. GetMerchantItemLink(i))
+                        end
+                    end
+                end
+            end
+        end
+        local class = UnitClass("player")
+        local isRich = false
+        if (GetMoney() >= 10000) then
+            isRich = true
+        end
+
+        --free
+        local nFood = 0
+        local nArrow = 0
+        --warlock
+        local nShard = 0
+        local nInfernalStone = 0
+        local nDemonicFigurine = 0
+        -- faid
+        local nBGHpPotion = 0
+        local nBGMpPotion = 0
+        local nWarsongGulchBandage = 0
+        local nNoggen = 0
+        local nFeather = 0
+
+        -- priest
+        local nCandle = 0
+        -- Druid
+        local nWildThornroot = 0
+        local nIronwoodSeed = 0
+        local nWildBerries = 0
+        -- Mage
+        local nPotalRune = 0
+        local nArcanePowder = 0
+        -- Shaman
+        local nAnkh = 0
+        -- Paladin
+        local nDivinity = 0
+        local nKings = 0
+        -- Rogue
+        local nFlashPowder = 0
+        local nBlindingPowder = 0
+
+        for i = 0, 4 do
+            for j = 1, 18 do
+                local link = GetContainerItemLink(i, j)
+                if (link ~= nil) then
+                    if (string.find(link, "Graccu")) then
+                        nFood = nFood + getCount(i, j)
+                    end
+                    if (string.find(link, "Doomshot")) then
+                        nArrow = nArrow + getCount(i, j)
+                    end
+                    if (string.find(link, "Soul Shard")) then
+                        nShard = nShard + getCount(i, j)
+                    end
+                    if (string.find(link, "Healing Draught")) then
+                        nBGHpPotion = nBGHpPotion + getCount(i, j)
+                    end
+                    if (string.find(link, "Mana Draught")) then
+                        nBGMpPotion = nBGMpPotion + getCount(i, j)
+                    end
+                    if (string.find(link, "Warsong Gulch Runecloth Bandage")) then
+                        nWarsongGulchBandage = nWarsongGulchBandage + getCount(i, j)
+                    end
+                    if (string.find(link, "Noggenfogger")) then
+                        nNoggen = nNoggen + getCount(i, j)
+                    end
+                    if (string.find(link, "Sacred Candle")) then
+                        nCandle = nCandle + getCount(i, j)
+                    end
+                    if (string.find(link, "Wild Thornroot")) then
+                        nWildThornroot = nWildThornroot + getCount(i, j)
+                    end
+                    if (string.find(link, "Ironwood Seed")) then
+                        nIronwoodSeed = nIronwoodSeed + getCount(i, j)
+                    end
+                    if (string.find(link, "Wild Berries")) then
+                        nWildBerries = nWildBerries + getCount(i, j)
+                    end
+                    if (string.find(link, "Rune of Portals")) then
+                        nPotalRune = nPotalRune + getCount(i, j)
+                    end
+                    if (string.find(link, "Arcane Powder")) then
+                        nArcanePowder = nArcanePowder + getCount(i, j)
+                    end
+                    if (string.find(link, "Light Feather")) then
+                        nFeather = nFeather + getCount(i, j)
+                    end
+                    if (string.find(link, "Ankh")) then
+                        nAnkh = nAnkh + getCount(i, j)
+                    end
+                    if (string.find(link, "Symbol of Divinity")) then
+                        nDivinity = nDivinity + getCount(i, j)
+                    end
+                    if (string.find(link, "Symbol of Kings")) then
+                        nKings = nKings + getCount(i, j)
+                    end
+                    if (string.find(link, "Infernal Stone")) then
+                        nInfernalStone = nInfernalStone + getCount(i, j)
+                    end
+                    if (string.find(link, "Demonic Figurine")) then
+                        nDemonicFigurine = nDemonicFigurine + getCount(i, j)
+                    end
+                    if (string.find(link, "Flash Powder")) then
+                        nFlashPowder = nFlashPowder + getCount(i, j)
+                    end
+                    if (string.find(link, "Blinding Powder")) then
+                        nBlindingPowder = nBlindingPowder + getCount(i, j)
+                    end
+                end
+            end
+        end
+        if (nFood < 200) then
+            buyItem("Graccu", nFood, 200, 200)
+        elseif (nArrow < 200) and (class == "Warrior" or class == "Rogue") then
+            buyItem("Doomshot", nArrow, 200, 1)
+        elseif (nArrow < 3000) and (class == "Hunter") then
+            buyItem("Doomshot", nArrow, 3000, 1)
+        elseif (nBGHpPotion < 10) and (isRich) then
+            buyItem("Healing Draught", nBGHpPotion, 10, 10)
+        elseif (nBGMpPotion < 10) and (not (class == "Warrior" or class == "Rogue")) and (isRich) then
+            buyItem("Mana Draught", nBGMpPotion, 10, 10)
+        elseif (nWarsongGulchBandage < 40) and (isRich) then
+            buyItem("Warsong Gulch Runecloth Bandage", nWarsongGulchBandage, 40, 1)
+        elseif (nNoggen < 200) and (isRich) then
+            buyItem("Noggenfogger", nNoggen, 200, 1)
+        elseif (nCandle < 200) and (class == "Priest") and (isRich) then
+            buyItem("Sacred Candle", nCandle, 200, 20)
+        elseif (nWildThornroot < 200) and (class == "Druid") and (isRich) then
+            buyItem("Wild Thornroot", nWildThornroot, 200, 20)
+        elseif (nIronwoodSeed < 200) and (class == "Druid") and (isRich) then
+            buyItem("Ironwood Seed", nIronwoodSeed, 200, 20)
+        elseif (nWildBerries < 20) and (class == "Druid") and (isRich) then
+            buyItem("Wild Berries", nWildBerries, 20, 20)
+        elseif (nPotalRune < 200) and (class == "Mage") and (isRich) then
+            buyItem("Rune of Portals", nPotalRune, 200, 20)
+        elseif (nArcanePowder < 200) and (class == "Mage") and (isRich) then
+            buyItem("Arcane Powder", nArcanePowder, 200, 20)
+        elseif (nFeather < 200) and (class == "Mage" or class == "Priest") and (isRich) then
+            buyItem("Light Feather", nFeather, 200, 20)
+        elseif (nAnkh < 200) and (class == "Shaman") and (isRich) then
+            buyItem("Ankh", nAnkh, 200, 5)
+        elseif (nDivinity < 10) and (class == "Paladin") and (isRich) then
+            buyItem("Symbol of Divinity", nDivinity, 10, 5)
+        elseif (nKings < 400) and (class == "Paladin") and (isRich) then
+            buyItem("Symbol of Kings", nKings, 400, 1)
+        elseif (nShard < 200) and (class == "Warlock") then
+            buyItem("Soul Shard", nShard, 200, 1)
+        elseif (nInfernalStone < 5) and (class == "Warlock") and (isRich) then
+            buyItem("Infernal Stone", nInfernalStone, 5, 1)
+        elseif (nDemonicFigurine < 5) and (class == "Warlock") and (isRich) then
+            buyItem("Demonic Figurine", nDemonicFigurine, 5, 1)
+        elseif (nFlashPowder < 200) and (class == "Rogue") and (isRich) then
+            buyItem("Flash Powder", nFlashPowder, 200, 20)
+        elseif (nBlindingPowder < 200) and (class == "Rogue") and (isRich) then
+            buyItem("Flash Powder", nBlindingPowder, 200, 20)
+        end
+    end
+end
+
+function RetroHelper_LearnSkills()
+    if (GetNumTrainerServices() ~= 0) then
+        BuyTrainerService(0)
     end
 end
 
