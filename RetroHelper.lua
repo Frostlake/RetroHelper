@@ -1278,7 +1278,7 @@ function RetroHelper_ShopRepair()
             for i = 1, GetMerchantNumItems() do
                 local link, tex, price, quantity, numAvailable, isUsable = GetMerchantItemInfo(i)
                 if (link) then
-                    if (string.find(link, iName)) then
+                    if (string.find(link, iName,1)) then                        
                         if (price <= GetMoney()) then
                             if (stack > 1) then
                                 local bCount
@@ -1416,6 +1416,7 @@ function RetroHelper_ShopRepair()
                 end
             end
         end
+        
         if (nFood < 200) then
             buyItem("Graccu", nFood, 200, 200)
         elseif (nArrow < 200) and (class == "Warrior" or class == "Rogue") then
@@ -1513,7 +1514,7 @@ function RetroHelper_InvTarget()
 end
 
 function RH_A()
-    CloseGossip()
+    
 end
 function RH_B()
 end
