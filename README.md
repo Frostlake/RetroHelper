@@ -81,5 +81,19 @@ v 0.3.8 April 14 2020 :
 
 
 
+ #### HOW TO INSTALL ####
+1. Click the "Clon or Download" button in green, and select "Download Zip".
+
+2. Download "RetroHelper-master.zip" file to your computer.
+
+3. Unzip "RetroHelper-master.zip" file.
+
+4. Rename "RetroHelper-master" folder to "RetroHelper".
+
+5. Copy the "RetroHelper" folder under the "World of Warcraft \Interface\AddOns\" path.
+
+ ex : C:\Game\World of Warcraft \Interface\AddOns\RetroHelper
+
+
 
 
