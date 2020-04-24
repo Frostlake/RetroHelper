@@ -1219,6 +1219,19 @@ function RetroHelper_Dismount()
 end
 
 function RetroHelper_ShopRepair()
+    local function IsSelling(iName)
+        for i = 1, GetMerchantNumItems() do
+            local link, tex, price, quantity, numAvailable, isUsable = GetMerchantItemInfo(i)
+            if (link) then
+                link = strlower(link)
+                iName = strlower(iName)
+                if (string.find(link, iName)) then
+                    return true
+                end
+            end
+        end
+        return false
+    end
     local function bagHandler(find)
         local link = nil
         local bagslots = nil
@@ -1278,7 +1291,9 @@ function RetroHelper_ShopRepair()
             for i = 1, GetMerchantNumItems() do
                 local link, tex, price, quantity, numAvailable, isUsable = GetMerchantItemInfo(i)
                 if (link) then
-                    if (string.find(link, iName,1)) then                        
+                    link = strlower(link)
+                    iName = strlower(iName)
+                    if (string.find(link, iName)) then
                         if (price <= GetMoney()) then
                             if (stack > 1) then
                                 local bCount
@@ -1416,51 +1431,51 @@ function RetroHelper_ShopRepair()
                 end
             end
         end
-        
-        if (nFood < 200) then
+
+        if (nFood < 200) and (IsSelling("Graccu")) then
             buyItem("Graccu", nFood, 200, 200)
-        elseif (nArrow < 200) and (class == "Warrior" or class == "Rogue") then
+        elseif (nArrow < 200) and (class == "Warrior" or class == "Rogue") and (IsSelling("Doomshot")) then
             buyItem("Doomshot", nArrow, 200, 1)
-        elseif (nArrow < 3000) and (class == "Hunter") then
+        elseif (nArrow < 3000) and (class == "Hunter") and (IsSelling("Doomshot")) then
             buyItem("Doomshot", nArrow, 3000, 1)
-        elseif (nBGHpPotion < 10) and (isRich) then
+        elseif (nBGHpPotion < 10) and (isRich) and (IsSelling("Healing Draught")) then
             buyItem("Healing Draught", nBGHpPotion, 10, 10)
-        elseif (nBGMpPotion < 10) and (not (class == "Warrior" or class == "Rogue")) and (isRich) then
+        elseif (nBGMpPotion < 10) and (not (class == "Warrior" or class == "Rogue")) and (isRich) and (IsSelling("Mana Draught")) then
             buyItem("Mana Draught", nBGMpPotion, 10, 10)
-        elseif (nWarsongGulchBandage < 40) and (isRich) then
+        elseif (nWarsongGulchBandage < 40) and (isRich) and (IsSelling("Warsong Gulch Runecloth Bandage")) then
             buyItem("Warsong Gulch Runecloth Bandage", nWarsongGulchBandage, 40, 1)
-        elseif (nNoggen < 200) and (isRich) then
+        elseif (nNoggen < 200) and (isRich) and (IsSelling("Noggenfogger")) then
             buyItem("Noggenfogger", nNoggen, 200, 1)
-        elseif (nCandle < 200) and (class == "Priest") and (isRich) then
+        elseif (nCandle < 200) and (class == "Priest") and (isRich) and (IsSelling("Sacred Candle")) then
             buyItem("Sacred Candle", nCandle, 200, 20)
-        elseif (nWildThornroot < 200) and (class == "Druid") and (isRich) then
+        elseif (nWildThornroot < 200) and (class == "Druid") and (isRich) and (IsSelling("Wild Thornroot")) then
             buyItem("Wild Thornroot", nWildThornroot, 200, 20)
-        elseif (nIronwoodSeed < 200) and (class == "Druid") and (isRich) then
+        elseif (nIronwoodSeed < 200) and (class == "Druid") and (isRich) and (IsSelling("Ironwood Seed")) then
             buyItem("Ironwood Seed", nIronwoodSeed, 200, 20)
-        elseif (nWildBerries < 20) and (class == "Druid") and (isRich) then
+        elseif (nWildBerries < 20) and (class == "Druid") and (isRich) and (IsSelling("Wild Berries")) then
             buyItem("Wild Berries", nWildBerries, 20, 20)
-        elseif (nPotalRune < 200) and (class == "Mage") and (isRich) then
+        elseif (nPotalRune < 200) and (class == "Mage") and (isRich) and (IsSelling("Rune of Portals")) then
             buyItem("Rune of Portals", nPotalRune, 200, 20)
-        elseif (nArcanePowder < 200) and (class == "Mage") and (isRich) then
+        elseif (nArcanePowder < 200) and (class == "Mage") and (isRich) and (IsSelling("Arcane Powder")) then
             buyItem("Arcane Powder", nArcanePowder, 200, 20)
-        elseif (nFeather < 200) and (class == "Mage" or class == "Priest") and (isRich) then
+        elseif (nFeather < 200) and (class == "Mage" or class == "Priest") and (isRich) and (IsSelling("Light Feather")) then
             buyItem("Light Feather", nFeather, 200, 20)
-        elseif (nAnkh < 200) and (class == "Shaman") and (isRich) then
+        elseif (nAnkh < 200) and (class == "Shaman") and (isRich) and (IsSelling("Ankh")) then
             buyItem("Ankh", nAnkh, 200, 5)
-        elseif (nDivinity < 10) and (class == "Paladin") and (isRich) then
+        elseif (nDivinity < 10) and (class == "Paladin") and (isRich) and (IsSelling("Symbol of Divinity")) then
             buyItem("Symbol of Divinity", nDivinity, 10, 5)
-        elseif (nKings < 400) and (class == "Paladin") and (isRich) then
+        elseif (nKings < 400) and (class == "Paladin") and (isRich) and (IsSelling("Symbol of Kings")) then
             buyItem("Symbol of Kings", nKings, 400, 1)
-        elseif (nShard < 200) and (class == "Warlock") then
+        elseif (nShard < 200) and (class == "Warlock") and (IsSelling("Soul Shard")) then
             buyItem("Soul Shard", nShard, 200, 1)
-        elseif (nInfernalStone < 5) and (class == "Warlock") and (isRich) then
+        elseif (nInfernalStone < 5) and (class == "Warlock") and (isRich) and (IsSelling("Infernal Stone")) then
             buyItem("Infernal Stone", nInfernalStone, 5, 1)
-        elseif (nDemonicFigurine < 5) and (class == "Warlock") and (isRich) then
+        elseif (nDemonicFigurine < 5) and (class == "Warlock") and (isRich) and (IsSelling("Demonic Figurine")) then
             buyItem("Demonic Figurine", nDemonicFigurine, 5, 1)
-        elseif (nFlashPowder < 200) and (class == "Rogue") and (isRich) then
+        elseif (nFlashPowder < 200) and (class == "Rogue") and (isRich) and (IsSelling("Flash Powder")) then
             buyItem("Flash Powder", nFlashPowder, 200, 20)
-        elseif (nBlindingPowder < 200) and (class == "Rogue") and (isRich) then
-            buyItem("Flash Powder", nBlindingPowder, 200, 20)
+        elseif (nBlindingPowder < 200) and (class == "Rogue") and (isRich) and (IsSelling("Blinding Powder")) then
+            buyItem("Blinding Powder", nBlindingPowder, 200, 20)
         end
     end
 end
@@ -1514,7 +1529,6 @@ function RetroHelper_InvTarget()
 end
 
 function RH_A()
-    
 end
 function RH_B()
 end
