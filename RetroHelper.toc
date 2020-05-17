@@ -1,9 +1,9 @@
 ## Interface: 11200
 ## Title: |cff00D8FFRetro |cffFF007FHelper |cff00D8FFv 0.3.9
-## Author: Frostwing, Bozi : nslookup79@gmail.com // Special Thanks : Uha 
+## Author: Frostwing, DivineWing : nslookup79@gmail.com // Special Thanks : Uha 
 ## Notes: |cffFFFFFFRetroHelper Designed for The RetroWOW Only. Slash Command : |cff00D8FF"/rh"|cffFFFFFF or |cff00D8FF"/retrohelper" 
-## Version: 0.3.9
-## SavedVariables: RetroHelper_CFG, RetroHelper_IsFirstTime
+## Version: 0.4.2
+
 
 RetroHelper.lua
 PopupMenu.lua

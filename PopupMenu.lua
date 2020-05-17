@@ -99,7 +99,7 @@ function RetroHelper_CreateOptionsFrame()
 			end
 		elseif (option == RH_ONCLICK) then
 			for k1, v1 in ipairs(RetroHelper_CFG) do
-				if (k1 == 5) then -- Broadcast
+				if (k1 == 4) then -- Broadcast
 					for k2, v2 in ipairs(RetroHelper_CFG[k1]) do
 						if (v2[2] == cbName) then
 							RH_CheckboxQB01:SetChecked(false)
@@ -111,6 +111,21 @@ function RetroHelper_CreateOptionsFrame()
 							end
 							this:SetChecked(true)
 							v2[4] = true
+						end
+					end
+				elseif (k1 == 6) then -- Battle Ground
+					for k2, v2 in ipairs(RetroHelper_CFG[k1]) do
+						if (v2[2] == cbName) then
+							RH_CheckboxBG01:SetChecked(false)
+							RH_CheckboxBG02:SetChecked(false)
+							RH_CheckboxBG03:SetChecked(false)
+							RH_CheckboxBG04:SetChecked(false)							
+							for k3, v3 in ipairs(RetroHelper_CFG[k1]) do
+								v3[4] = false
+							end
+							this:SetChecked(true)
+							v2[4] = true
+							RetroHelper_Queue()
 						end
 					end
 				else -- another
@@ -170,10 +185,10 @@ function RetroHelper_CreateOptionsFrame()
 
 	frame.quests_world = CreatCBoxs(frame, 25, -45, "Auto Repeat : World Quests", 1)
 	frame.quests_ragefire = CreatCBoxs(frame, 25, -311, "Auto Repeat : Ragefire Quests", 2)
-	frame.quests_raid = CreatCBoxs(frame, 25, -439, "Auto Repeat : Raid Quests", 3)
-	frame.quests_pvp = CreatCBoxs(frame, 315, -45, "Auto Repeat : PvP Quest Master", 4)
-	frame.quest_broadcast = CreatCBoxs(frame, 310, -133, "Quest Broadcast", 5)
-	frame.autoloot = CreatCBoxs(frame, 315, -219, "Auto Loot & Need Roll", 6)
+	frame.quests_pvp = CreatCBoxs(frame, 25, -439, "Auto Repeat : PvP Quest Master", 3)
+	frame.quest_broadcast = CreatCBoxs(frame, 315, -45, "Quest Broadcast", 4)
+	frame.autoloot = CreatCBoxs(frame, 310, -133, "Autoloot & Need Roll", 5)
+	frame.auto_queue = CreatCBoxs(frame, 315, -259, "Auto BG Queue", 6)
 	frame.etc_cfg = CreatCBoxs(frame, 315, -345, "ETC Config", 7)
 
 	return frame

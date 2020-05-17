@@ -162,68 +162,47 @@ RetroHelper_CFG = {
             false
         }
     },
-    -- Raid Quests
+    -- PvP Quests
     [3] = {
         [1] = {
-            "RAID_QUEST_AUTO_REPEAT_ZULGURUB",
-            "RH_CheckboxRQ01",
-            "Zul'Gurub: Elites [200 Gold]",
+            "PVP_QUEST_AUTO_REPEAT_WARSONG_GULCH",
+            "RH_CheckboxPQ01",
+            "PvP: Warsong Gulch Mark of Honor",
             false
         },
         [2] = {
-            "RAID_QUEST_AUTO_REPEAT_MOLTEN_CORE",
-            "RH_CheckboxRQ02",
-            "Molten Core: Elites [300 Gold]",
+            "PVP_QUEST_AUTO_REPEAT_ARATHI_BASIN",
+            "RH_CheckboxPQ02",
+            "PvP: Arathi Basin Mark of Honor",
             false
         },
         [3] = {
-            "RAID_QUEST_AUTO_REPEAT_RUINS_OF_AHNQIRAJ",
-            "RH_CheckboxRQ03",
-            "Ruins of Ahn'Qiraj: Elites [300 Gold]",
+            "PVP_QUEST_AUTO_REPEAT_ALTERAC_VALLEY",
+            "RH_CheckboxPQ03",
+            "PvP: Alterac Valley Mark of Honor",
             false
         },
         [4] = {
-            "RAID_QUEST_AUTO_REPEAT_TEMPLE_OF_AHNQIRAJ",
-            "RH_CheckboxRQ04",
-            "Temple of Ahn'Qiraj: Elites [400 Gold]",
+            "PVP_QUEST_AUTO_REPEAT_PVP_TOKEN",
+            "RH_CheckboxPQ04",
+            "PvP Tokens [200 Gold]",
             false
         },
         [5] = {
-            "RAID_QUEST_AUTO_REPEAT_NAXXRAMAS",
-            "RH_CheckboxRQ05",
-            "Naxxramas: Elites  [600 Gold]",
-            false
-        }
-    },
-    -- PvP Quests
-    [4] = {
-        [1] = {
-            "PVP_QUEST_AUTO_REPEAT_MARK_OF_HONOR_ATTUNEMENT",
-            "RH_CheckboxPQ01",
-            "Mark of Honor Attunement",
-            false
-        },
-        [2] = {
-            "PVP_QUEST_AUTO_REPEAT_PVP_TOKEN_ATTUNEMENT",
-            "RH_CheckboxPQ02",
-            "PvP Token Attunement",
-            false
-        },
-        [3] = {
             "PVP_QUEST_AUTO_REPEAT_MAJOR_HEALING_POTION",
-            "RH_CheckboxPQ03",
+            "RH_CheckboxPQ05",
             "Major Healing Potion [5x]",
             false
         },
-        [4] = {
+        [6] = {
             "PVP_QUEST_AUTO_REPEAT_MAJOR_MANA_POTION",
-            "RH_CheckboxPQ04",
+            "RH_CheckboxPQ06",
             "Major Mana Potion [5x]",
             false
         }
     },
     -- Quest Broadcast
-    [5] = {
+    [4] = {
         [1] = {
             "QUEST_BROADCAST_AUTO",
             "RH_CheckboxQB01",
@@ -250,7 +229,7 @@ RetroHelper_CFG = {
         }
     },
     -- Autoloot & Need Roll
-    [6] = {
+    [5] = {
         [1] = {
             "AUTO_LOOT_PVE_TOKEN",
             "RH_CheckboxAL01",
@@ -294,6 +273,33 @@ RetroHelper_CFG = {
             false
         }
     },
+    -- BG Queue
+    [6] = {
+        [1] = {
+            "BG_QUEUE_OFF",
+            "RH_CheckboxBG01",
+            "Auto BG Queue OFF",
+            true
+        },
+        [2] = {
+            "BG_QUEUE_WARSONG_GULCH",
+            "RH_CheckboxBG02",
+            "Warsong Gulch",
+            false
+        },
+        [3] = {
+            "BG_QUEUE_ARATHI_BUSIN",
+            "RH_CheckboxBG03",
+            "Arathi Basin",
+            false
+        },
+        [4] = {
+            "BG_QUEUE_ALTERAC_VALLEY",
+            "RH_CheckboxBG04",
+            "Alterac Valley",
+            false
+        }
+    },
     -- ETC Config
     [7] = {
         [1] = {
@@ -303,27 +309,39 @@ RetroHelper_CFG = {
             true
         },
         [2] = {
-            "CFG_AUTO_WELCOME",
+            "CFG_AUTO_GREETINGS",
             "RH_CheckboxEC02",
-            "Auto Welcome & Thanks[Party]",
+            "Auto Greetings",
             true
         },
         [3] = {
             "CFG_FAST_BG",
             "RH_CheckboxEC03",
-            "Auto BG Queue & Leave",
+            "Fast BG Queue & Leave",
             true
         },
         [4] = {
             "CFG_DUEL_HELPER",
             "RH_CheckboxEC04",
             "Fix Duel Target",
-            true
+            false
         },
         [5] = {
             "CFG_TARGET_BG",
             "RH_CheckboxEC05",
             "Smart Targeting in BG",
+            false
+        },
+        [6] = {
+            "CFG_ENEMY_SPELL",
+            "RH_CheckboxEC06",
+            "Enemy Spell Casting Alert",
+            true
+        },
+        [7] = {
+            "CFG_AUTO_SHOPPING",
+            "RH_CheckboxEC07",
+            "Auto Buy consumable",
             true
         }
     }
@@ -453,10 +471,8 @@ local RetroHelper_QuestObjects = {
     ["Mark of Honor Attunement"] = {
         ["PvP Token"] = 100
     },
-    ["PvP Token Attunement"] = {
-        ["Warsong Gulch Mark of Honor"] = 1,
-        ["Arathi Basin Mark of Honor"] = 1,
-        ["Alterac Valley Mark of Honor"] = 1
+    ["PVP Tokens [200 Gold]"] = {
+        ["PvP Tokens [200 Gold]"] = 50
     },
     ["Major Healing Potion [5x]"] = {
         ["PvP Token"] = 75
@@ -485,7 +501,8 @@ local RetroHelper_Variables = {
     isShop = false,
     shopOpenTime = GetTime(),
     isTrainer = false,
-    trainerOpenTime = GetTime()
+    trainerOpenTime = GetTime(),
+    onUpdateTime = GetTime()
 }
 
 local RetroHelper_RecentInvList = {}
@@ -515,6 +532,9 @@ local RetroHelper_Events = {
     "TRAINER_SHOW",
     "TRAINER_CLOSED",
     "BATTLEFIELDS_SHOW",
+    "PLAYER_UNGHOST",
+    "MINIMAP_ZONE_CHANGED",
+    "CHAT_MSG_SPELL_HOSTILEPLAYER_DAMAGE",
     "CHAT_MSG_COMBAT_CREATURE_VS_CREATURE_HITS"
 }
 
@@ -591,6 +611,21 @@ local function RetroHelper_MenuHandler(available, active, accept, complete)
             end
         end
     end
+end
+
+function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
+    if (GetNumBattlefieldStats() == 0) then
+        if (GetBattlefieldEstimatedWaitTime(1) == 0) then
+            RetroHelper_Queue()
+        end
+    end
+    RetroHelper_Repair()
+end
+
+function RetroHelper_EventHandler.PLAYER_UNGHOST()
+    TargetUnit("player")
+    RetroHelper_Repair()
+    TargetLastTarget()
 end
 
 function RetroHelper_EventHandler.ADDON_LOADED()
@@ -670,6 +705,38 @@ function RetroHelper_EventHandler.TRAINER_CLOSED()
     _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFE400" .. "Auto learns Trainer Skills!!")
 end
 
+function RetroHelper_EventHandler.CHAT_MSG_SPELL_HOSTILEPLAYER_DAMAGE()
+    if (RetroHelper_GetCfg("CFG_ENEMY_SPELL", 1) == true) then
+        local eName, spell, eTarget
+        for eName, spell in string.gfind(arg1, "(.+) begins to cast (.+).") do
+            if
+                (spell == "Lightning Bolt") or (spell == "Chain Lightning") or (spell == "Firebolt") or (spell == "Pyroblast") or (spell == "Shadow Bolt") or (spell == "Polymorph") or
+                    (spell == "Frostbolt") or
+                    (spell == "Starfire") or
+                    (spell == "Fear") or
+                    (spell == "Soul Fire")
+             then
+                TargetByName(eName)
+                eTarget = GetUnitName("targettarget")
+                if (CheckInteractDistance("target", 4)) then
+                    inDistance = "Close"
+                else
+                    inDistance = "Far"
+                end
+                if (eTarget == nil) then
+                    eTarget = "None"
+                end
+                TargetLastTarget()
+
+                if (eTarget == GetUnitName("player")) then
+                    PlaySoundFile("Sound\\Doodad\\g_hornofecheyakee.wav")
+                    _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cff5CD1E5" .. "Enemy Cast Start - " .. "|cffFFFFFF" .. "Spell : " .. spell .. "  Name : " .. eName .. "  Distance : " .. inDistance)
+                end
+            end
+        end
+    end
+end
+
 function RetroHelper_EventHandler.BATTLEFIELDS_SHOW()
     if (not IsShiftKeyDown()) then
         if (RetroHelper_GetCfg("CFG_FAST_BG", 1)) then
@@ -707,6 +774,13 @@ RetroHelper_OnUpdateHandler:SetScript(
                 TargetByName(RetroHelper_Variables.duel_target)
             end
         end
+        ----- add cfg
+        if (GetTime() - RetroHelper_Variables.onUpdateTime >= 0.2) then
+            RetroHelper_Variables.onUpdateTime = GetTime() + 0.2
+        -- Do Something
+        --RetroHelper_UseNoggenEliXir()
+        end
+        -----
         if (RetroHelper_Variables.isShop) and (GetTime() - RetroHelper_Variables.shopOpenTime >= 0.25) and (not CursorHasItem()) then
             RetroHelper_Variables.shopOpenTime = GetTime() + 0.25
             RetroHelper_ShopRepair()
@@ -722,8 +796,7 @@ RetroHelper_OnUpdateHandler:SetScript(
                 if bg_winner == 0 then
                     winner_name = "Horde"
                 end
-                UIErrorsFrame:Clear()
-                UIErrorsFrame:AddMessage("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Winner is " .. "|cffFFE400" .. winner_name)
+                _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Winner is " .. "|cffFFE400" .. winner_name)
                 LeaveBattlefield()
             end
         end
@@ -864,7 +937,7 @@ end
 
 function RetroHelper_IsQuestNPC()
     local name = GetUnitName("target")
-    if (name == "World Quests") or (name == "Raid Quests") or (name == "Ragefire Spy") or (name == "PvP Quest Master") then
+    if (name == "World Quests") or (name == "Ragefire Spy") or (name == "PvP Quest Master") then
         return true
     end
     return false
@@ -924,11 +997,11 @@ function RetroHelper_EventHandler.CHAT_MSG_SYSTEM(...)
             RetroHelper_Variables.isPlayerAFK = true
         elseif (arg1 == "You are no longer AFK.") then
             RetroHelper_Variables.isPlayerAFK = false
-        elseif (string.find(arg1, "joins the party.")) and (RetroHelper_GetCfg("CFG_AUTO_WELCOME", 1) == true) then
+        elseif (string.find(arg1, "joins the party.")) and (RetroHelper_GetCfg("CFG_AUTO_GREETINGS", 1) == true) then
             for name, _ in string.gfind(arg1, "(.+) joins the party.") do
                 SendChatMessage("[RetroHelper] " .. name .. ", Welcome to party !!", "PARTY")
             end
-        elseif (string.find(arg1, "has come online.")) and (RetroHelper_GetCfg("CFG_AUTO_WELCOME", 1) == true) then
+        elseif (string.find(arg1, "has come online.")) and (RetroHelper_GetCfg("CFG_AUTO_GREETINGS", 1) == true) then
             if (RetroHelper_Variables.isPlayerAFK == true) then
             -- to do somthing
             end
@@ -985,7 +1058,7 @@ function RetroHelper_EventHandler.UI_INFO_MESSAGE(...)
         local qName = GetQuestName(arg1)
         local numA, numB
         if (qName ~= nil) then
-            if (not (string.find(qName, "Tokens") or string.find(qName, "Attunement") or string.find(qName, "Potion"))) then
+            if (not (string.find(qName, "Tokens") or string.find(qName, "PvP") or string.find(qName, "Potion"))) then
                 RetroHelper_Variables.currentProgressingQuest = qName
                 RetroHelper_Variables.currentProgressingQuestTime = GetTime()
 
@@ -1018,7 +1091,7 @@ end
 function RetroHelper_EventHandler.UI_ERROR_MESSAGE(...)
     if (string.find(arg1, "mounted") or string.find(arg1, "while silenced")) then
         UIErrorsFrame:Clear()
-        RetroHelper_Dismount()
+        RetroHelper_CancleBuff("Increases speed by (.+)%%")
     end
     if (string.find(arg1, "standing")) then
     end
@@ -1117,7 +1190,7 @@ function RetroHelper_EventHandler.GOSSIP_SHOW()
             gossipnr = i
         elseif GossipType[i] == "taxi" then
             gossipnr = i
-            RetroHelper_Dismount()
+            RetroHelper_CancleBuff("Increases speed by (.+)%%")
         end
     end
 
@@ -1192,30 +1265,68 @@ function RetroHelper_GetCfg(value, option)
                     return v1[4], v1[3], v1[2]
                 end
             elseif (option == DESCRIPTION) then
-                if (v1[3] == value) then
-                    return v1[4], v1[1], v1[2]
+                -- if (v1[3] == value) then
+                if (value) then
+                    if (v1[3] == value) or (string.find(value, v1[3])) then
+                        return v1[4], v1[1], v1[2]
+                    end
                 end
             end
         end
     end
 end
 
-function RetroHelper_Dismount()
+function RetroHelper_CancleBuff(bName)
     local counter = 0
-    local tooltipfind = "Increases speed by (.+)%%"
     while GetPlayerBuff(counter) >= 0 do
         local index, untilCancelled = GetPlayerBuff(counter)
         RetroHelperBuffTooltip:SetPlayerBuff(index)
         local desc = RetroHelperBuffTooltipTextLeft2:GetText()
         if desc then
-            _, _, speed = string.find(desc, tooltipfind)
-            if speed then
+            _, _, msg = string.find(desc, bName)
+            if msg then
                 CancelPlayerBuff(counter)
                 return
             end
         end
         counter = counter + 1
     end
+end
+
+function RetroHelper_UseNoggenEliXir()
+end
+
+function RetroHelper_Buffed(obuff, unit, item)
+    local buff = strlower(obuff)
+    local tooltip = CM_Scan
+    local textleft1 = getglobal(tooltip:GetName() .. "TextLeft1")
+    if (not unit) then
+        unit = "player"
+    end
+    if (item) then
+        return
+    end
+    tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+    tooltip:SetTrackingSpell()
+    local b = textleft1:GetText()
+    if (b and strfind(strlower(b), buff)) then
+        tooltip:Hide()
+        return "track", b
+    end
+    local c = nil
+    for i = 1, 16 do
+        tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+        tooltip:SetUnitBuff(unit, i)
+        b = textleft1:GetText()
+        tooltip:Hide()
+        if (b and strfind(strlower(b), buff)) then
+            return "buff", i, b
+        elseif (c == b) then
+            break
+        end
+        --c = b;
+    end
+    tooltip:Hide()
 end
 
 function RetroHelper_ShopRepair()
@@ -1260,7 +1371,7 @@ function RetroHelper_ShopRepair()
                 RetroHelper_Shop.slot = slot
             end
         end
-    elseif CanMerchantRepair() then
+    --[[ elseif CanMerchantRepair() then
         local rcost = GetRepairAllCost()
         if rcost and rcost ~= 0 then
             if rcost > GetMoney() then
@@ -1279,7 +1390,7 @@ function RetroHelper_ShopRepair()
 
             _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Repaired all the items " .. COLOR_GOLD .. gold .. "g " .. COLOR_SILVER .. silver .. "s " .. COLOR_COPPER .. copper .. "c")
             RetroHelper_Shop.repair = nil
-        end
+        end ]]
     end
     if (true) then
         local function getCount(x, y)
@@ -1329,153 +1440,156 @@ function RetroHelper_ShopRepair()
             isRich = true
         end
 
-        --free
-        local nFood = 0
-        local nArrow = 0
-        --warlock
-        local nShard = 0
-        local nInfernalStone = 0
-        local nDemonicFigurine = 0
-        -- faid
-        local nBGHpPotion = 0
-        local nBGMpPotion = 0
-        local nWarsongGulchBandage = 0
-        local nNoggen = 0
-        local nFeather = 0
+        ---- if auto buy on
+        if (RetroHelper_GetCfg("CFG_AUTO_SHOPPING", 1) == true) then
+            --free
+            local nFood = 0
+            local nArrow = 0
+            --warlock
+            local nShard = 0
+            local nInfernalStone = 0
+            local nDemonicFigurine = 0
+            -- faid
+            local nBGHpPotion = 0
+            local nBGMpPotion = 0
+            local nWarsongGulchBandage = 0
+            local nNoggen = 0
+            local nFeather = 0
 
-        -- priest
-        local nCandle = 0
-        -- Druid
-        local nWildThornroot = 0
-        local nIronwoodSeed = 0
-        local nWildBerries = 0
-        -- Mage
-        local nPotalRune = 0
-        local nArcanePowder = 0
-        -- Shaman
-        local nAnkh = 0
-        -- Paladin
-        local nDivinity = 0
-        local nKings = 0
-        -- Rogue
-        local nFlashPowder = 0
-        local nBlindingPowder = 0
+            -- priest
+            local nCandle = 0
+            -- Druid
+            local nWildThornroot = 0
+            local nIronwoodSeed = 0
+            local nWildBerries = 0
+            -- Mage
+            local nPotalRune = 0
+            local nArcanePowder = 0
+            -- Shaman
+            local nAnkh = 0
+            -- Paladin
+            local nDivinity = 0
+            local nKings = 0
+            -- Rogue
+            local nFlashPowder = 0
+            local nBlindingPowder = 0
 
-        for i = 0, 4 do
-            for j = 1, 18 do
-                local link = GetContainerItemLink(i, j)
-                if (link ~= nil) then
-                    if (string.find(link, "Graccu")) then
-                        nFood = nFood + getCount(i, j)
-                    end
-                    if (string.find(link, "Doomshot")) then
-                        nArrow = nArrow + getCount(i, j)
-                    end
-                    if (string.find(link, "Soul Shard")) then
-                        nShard = nShard + getCount(i, j)
-                    end
-                    if (string.find(link, "Healing Draught")) then
-                        nBGHpPotion = nBGHpPotion + getCount(i, j)
-                    end
-                    if (string.find(link, "Mana Draught")) then
-                        nBGMpPotion = nBGMpPotion + getCount(i, j)
-                    end
-                    if (string.find(link, "Warsong Gulch Runecloth Bandage")) then
-                        nWarsongGulchBandage = nWarsongGulchBandage + getCount(i, j)
-                    end
-                    if (string.find(link, "Noggenfogger")) then
-                        nNoggen = nNoggen + getCount(i, j)
-                    end
-                    if (string.find(link, "Sacred Candle")) then
-                        nCandle = nCandle + getCount(i, j)
-                    end
-                    if (string.find(link, "Wild Thornroot")) then
-                        nWildThornroot = nWildThornroot + getCount(i, j)
-                    end
-                    if (string.find(link, "Ironwood Seed")) then
-                        nIronwoodSeed = nIronwoodSeed + getCount(i, j)
-                    end
-                    if (string.find(link, "Wild Berries")) then
-                        nWildBerries = nWildBerries + getCount(i, j)
-                    end
-                    if (string.find(link, "Rune of Portals")) then
-                        nPotalRune = nPotalRune + getCount(i, j)
-                    end
-                    if (string.find(link, "Arcane Powder")) then
-                        nArcanePowder = nArcanePowder + getCount(i, j)
-                    end
-                    if (string.find(link, "Light Feather")) then
-                        nFeather = nFeather + getCount(i, j)
-                    end
-                    if (string.find(link, "Ankh")) then
-                        nAnkh = nAnkh + getCount(i, j)
-                    end
-                    if (string.find(link, "Symbol of Divinity")) then
-                        nDivinity = nDivinity + getCount(i, j)
-                    end
-                    if (string.find(link, "Symbol of Kings")) then
-                        nKings = nKings + getCount(i, j)
-                    end
-                    if (string.find(link, "Infernal Stone")) then
-                        nInfernalStone = nInfernalStone + getCount(i, j)
-                    end
-                    if (string.find(link, "Demonic Figurine")) then
-                        nDemonicFigurine = nDemonicFigurine + getCount(i, j)
-                    end
-                    if (string.find(link, "Flash Powder")) then
-                        nFlashPowder = nFlashPowder + getCount(i, j)
-                    end
-                    if (string.find(link, "Blinding Powder")) then
-                        nBlindingPowder = nBlindingPowder + getCount(i, j)
+            for i = 0, 4 do
+                for j = 1, 18 do
+                    local link = GetContainerItemLink(i, j)
+                    if (link ~= nil) then
+                        if (string.find(link, "Graccu")) then
+                            nFood = nFood + getCount(i, j)
+                        end
+                        if (string.find(link, "Doomshot")) then
+                            nArrow = nArrow + getCount(i, j)
+                        end
+                        if (string.find(link, "Soul Shard")) then
+                            nShard = nShard + getCount(i, j)
+                        end
+                        if (string.find(link, "Healing Draught")) then
+                            nBGHpPotion = nBGHpPotion + getCount(i, j)
+                        end
+                        if (string.find(link, "Mana Draught")) then
+                            nBGMpPotion = nBGMpPotion + getCount(i, j)
+                        end
+                        if (string.find(link, "Warsong Gulch Runecloth Bandage")) then
+                            nWarsongGulchBandage = nWarsongGulchBandage + getCount(i, j)
+                        end
+                        if (string.find(link, "Noggenfogger")) then
+                            nNoggen = nNoggen + getCount(i, j)
+                        end
+                        if (string.find(link, "Sacred Candle")) then
+                            nCandle = nCandle + getCount(i, j)
+                        end
+                        if (string.find(link, "Wild Thornroot")) then
+                            nWildThornroot = nWildThornroot + getCount(i, j)
+                        end
+                        if (string.find(link, "Ironwood Seed")) then
+                            nIronwoodSeed = nIronwoodSeed + getCount(i, j)
+                        end
+                        if (string.find(link, "Wild Berries")) then
+                            nWildBerries = nWildBerries + getCount(i, j)
+                        end
+                        if (string.find(link, "Rune of Portals")) then
+                            nPotalRune = nPotalRune + getCount(i, j)
+                        end
+                        if (string.find(link, "Arcane Powder")) then
+                            nArcanePowder = nArcanePowder + getCount(i, j)
+                        end
+                        if (string.find(link, "Light Feather")) then
+                            nFeather = nFeather + getCount(i, j)
+                        end
+                        if (string.find(link, "Ankh")) then
+                            nAnkh = nAnkh + getCount(i, j)
+                        end
+                        if (string.find(link, "Symbol of Divinity")) then
+                            nDivinity = nDivinity + getCount(i, j)
+                        end
+                        if (string.find(link, "Symbol of Kings")) then
+                            nKings = nKings + getCount(i, j)
+                        end
+                        if (string.find(link, "Infernal Stone")) then
+                            nInfernalStone = nInfernalStone + getCount(i, j)
+                        end
+                        if (string.find(link, "Demonic Figurine")) then
+                            nDemonicFigurine = nDemonicFigurine + getCount(i, j)
+                        end
+                        if (string.find(link, "Flash Powder")) then
+                            nFlashPowder = nFlashPowder + getCount(i, j)
+                        end
+                        if (string.find(link, "Blinding Powder")) then
+                            nBlindingPowder = nBlindingPowder + getCount(i, j)
+                        end
                     end
                 end
             end
-        end
 
-        if (nFood < 200) and (IsSelling("Graccu")) then
-            buyItem("Graccu", nFood, 200, 200)
-        elseif (nArrow < 200) and (class == "Warrior" or class == "Rogue") and (IsSelling("Doomshot")) then
-            buyItem("Doomshot", nArrow, 200, 1)
-        elseif (nArrow < 3000) and (class == "Hunter") and (IsSelling("Doomshot")) then
-            buyItem("Doomshot", nArrow, 3000, 1)
-        elseif (nBGHpPotion < 10) and (isRich) and (IsSelling("Healing Draught")) then
-            buyItem("Healing Draught", nBGHpPotion, 10, 10)
-        elseif (nBGMpPotion < 10) and (not (class == "Warrior" or class == "Rogue")) and (isRich) and (IsSelling("Mana Draught")) then
-            buyItem("Mana Draught", nBGMpPotion, 10, 10)
-        elseif (nWarsongGulchBandage < 40) and (isRich) and (IsSelling("Warsong Gulch Runecloth Bandage")) then
-            buyItem("Warsong Gulch Runecloth Bandage", nWarsongGulchBandage, 40, 1)
-        elseif (nNoggen < 200) and (isRich) and (IsSelling("Noggenfogger")) then
-            buyItem("Noggenfogger", nNoggen, 200, 1)
-        elseif (nCandle < 200) and (class == "Priest") and (isRich) and (IsSelling("Sacred Candle")) then
-            buyItem("Sacred Candle", nCandle, 200, 20)
-        elseif (nWildThornroot < 200) and (class == "Druid") and (isRich) and (IsSelling("Wild Thornroot")) then
-            buyItem("Wild Thornroot", nWildThornroot, 200, 20)
-        elseif (nIronwoodSeed < 200) and (class == "Druid") and (isRich) and (IsSelling("Ironwood Seed")) then
-            buyItem("Ironwood Seed", nIronwoodSeed, 200, 20)
-        elseif (nWildBerries < 20) and (class == "Druid") and (isRich) and (IsSelling("Wild Berries")) then
-            buyItem("Wild Berries", nWildBerries, 20, 20)
-        elseif (nPotalRune < 200) and (class == "Mage") and (isRich) and (IsSelling("Rune of Portals")) then
-            buyItem("Rune of Portals", nPotalRune, 200, 20)
-        elseif (nArcanePowder < 200) and (class == "Mage") and (isRich) and (IsSelling("Arcane Powder")) then
-            buyItem("Arcane Powder", nArcanePowder, 200, 20)
-        elseif (nFeather < 200) and (class == "Mage" or class == "Priest") and (isRich) and (IsSelling("Light Feather")) then
-            buyItem("Light Feather", nFeather, 200, 20)
-        elseif (nAnkh < 200) and (class == "Shaman") and (isRich) and (IsSelling("Ankh")) then
-            buyItem("Ankh", nAnkh, 200, 5)
-        elseif (nDivinity < 10) and (class == "Paladin") and (isRich) and (IsSelling("Symbol of Divinity")) then
-            buyItem("Symbol of Divinity", nDivinity, 10, 5)
-        elseif (nKings < 400) and (class == "Paladin") and (isRich) and (IsSelling("Symbol of Kings")) then
-            buyItem("Symbol of Kings", nKings, 400, 1)
-        elseif (nShard < 200) and (class == "Warlock") and (IsSelling("Soul Shard")) then
-            buyItem("Soul Shard", nShard, 200, 1)
-        elseif (nInfernalStone < 5) and (class == "Warlock") and (isRich) and (IsSelling("Infernal Stone")) then
-            buyItem("Infernal Stone", nInfernalStone, 5, 1)
-        elseif (nDemonicFigurine < 5) and (class == "Warlock") and (isRich) and (IsSelling("Demonic Figurine")) then
-            buyItem("Demonic Figurine", nDemonicFigurine, 5, 1)
-        elseif (nFlashPowder < 200) and (class == "Rogue") and (isRich) and (IsSelling("Flash Powder")) then
-            buyItem("Flash Powder", nFlashPowder, 200, 20)
-        elseif (nBlindingPowder < 200) and (class == "Rogue") and (isRich) and (IsSelling("Blinding Powder")) then
-            buyItem("Blinding Powder", nBlindingPowder, 200, 20)
+            if (nFood < 200) and (IsSelling("Graccu")) then
+                buyItem("Graccu", nFood, 200, 200)
+            elseif (nArrow < 200) and (class == "Warrior" or class == "Rogue") and (IsSelling("Doomshot")) then
+                buyItem("Doomshot", nArrow, 200, 1)
+            elseif (nArrow < 3000) and (class == "Hunter") and (IsSelling("Doomshot")) then
+                buyItem("Doomshot", nArrow, 3000, 1)
+            elseif (nBGHpPotion < 10) and (isRich) and (IsSelling("Healing Draught")) then
+                buyItem("Healing Draught", nBGHpPotion, 10, 10)
+            elseif (nBGMpPotion < 10) and (not (class == "Warrior" or class == "Rogue")) and (isRich) and (IsSelling("Mana Draught")) then
+                buyItem("Mana Draught", nBGMpPotion, 10, 10)
+            elseif (nWarsongGulchBandage < 40) and (isRich) and (IsSelling("Warsong Gulch Runecloth Bandage")) then
+                buyItem("Warsong Gulch Runecloth Bandage", nWarsongGulchBandage, 40, 1)
+            elseif (nNoggen < 200) and (isRich) and (IsSelling("Noggenfogger")) then
+                buyItem("Noggenfogger", nNoggen, 200, 1)
+            elseif (nCandle < 200) and (class == "Priest") and (isRich) and (IsSelling("Sacred Candle")) then
+                buyItem("Sacred Candle", nCandle, 200, 20)
+            elseif (nWildThornroot < 200) and (class == "Druid") and (isRich) and (IsSelling("Wild Thornroot")) then
+                buyItem("Wild Thornroot", nWildThornroot, 200, 20)
+            elseif (nIronwoodSeed < 200) and (class == "Druid") and (isRich) and (IsSelling("Ironwood Seed")) then
+                buyItem("Ironwood Seed", nIronwoodSeed, 200, 20)
+            elseif (nWildBerries < 20) and (class == "Druid") and (isRich) and (IsSelling("Wild Berries")) then
+                buyItem("Wild Berries", nWildBerries, 20, 20)
+            elseif (nPotalRune < 200) and (class == "Mage") and (isRich) and (IsSelling("Rune of Portals")) then
+                buyItem("Rune of Portals", nPotalRune, 200, 20)
+            elseif (nArcanePowder < 200) and (class == "Mage") and (isRich) and (IsSelling("Arcane Powder")) then
+                buyItem("Arcane Powder", nArcanePowder, 200, 20)
+            elseif (nFeather < 200) and (class == "Mage" or class == "Priest") and (isRich) and (IsSelling("Light Feather")) then
+                buyItem("Light Feather", nFeather, 200, 20)
+            elseif (nAnkh < 200) and (class == "Shaman") and (isRich) and (IsSelling("Ankh")) then
+                buyItem("Ankh", nAnkh, 200, 5)
+            elseif (nDivinity < 10) and (class == "Paladin") and (isRich) and (IsSelling("Symbol of Divinity")) then
+                buyItem("Symbol of Divinity", nDivinity, 10, 5)
+            elseif (nKings < 400) and (class == "Paladin") and (isRich) and (IsSelling("Symbol of Kings")) then
+                buyItem("Symbol of Kings", nKings, 400, 1)
+            elseif (nShard < 200) and (class == "Warlock") and (IsSelling("Soul Shard")) then
+                buyItem("Soul Shard", nShard, 200, 1)
+            elseif (nInfernalStone < 5) and (class == "Warlock") and (isRich) and (IsSelling("Infernal Stone")) then
+                buyItem("Infernal Stone", nInfernalStone, 5, 1)
+            elseif (nDemonicFigurine < 5) and (class == "Warlock") and (isRich) and (IsSelling("Demonic Figurine")) then
+                buyItem("Demonic Figurine", nDemonicFigurine, 5, 1)
+            elseif (nFlashPowder < 200) and (class == "Rogue") and (isRich) and (IsSelling("Flash Powder")) then
+                buyItem("Flash Powder", nFlashPowder, 200, 20)
+            elseif (nBlindingPowder < 200) and (class == "Rogue") and (isRich) and (IsSelling("Blinding Powder")) then
+                buyItem("Blinding Powder", nBlindingPowder, 200, 20)
+            end
         end
     end
 end
@@ -1528,7 +1642,32 @@ function RetroHelper_InvTarget()
     end
 end
 
+function RetroHelper_ChatCommand(cmd)
+    DEFAULT_CHAT_FRAME.editBox:SetText(cmd)
+    ChatEdit_SendText(DEFAULT_CHAT_FRAME.editBox, 0)
+end
+
+function RetroHelper_Queue()
+    if (RetroHelper_GetCfg("BG_QUEUE_WARSONG_GULCH", 1) == true) then
+        RetroHelper_ChatCommand(".go warsong")
+    elseif (RetroHelper_GetCfg("BG_QUEUE_ARATHI_BUSIN", 1) == true) then
+        RetroHelper_ChatCommand(".go arathi")
+    elseif (RetroHelper_GetCfg("BG_QUEUE_ALTERAC_VALLEY", 1) == true) then
+        RetroHelper_ChatCommand(".go alterac")
+    end
+end
+
+function RetroHelper_Repair()    
+  RetroHelper_ChatCommand(".repair")
+end
+
 function RH_A()
+    local cmd = ".go alterac"
 end
 function RH_B()
+    if (GetNumBattlefieldStats() == 0) then
+        if (GetBattlefieldEstimatedWaitTime(1) == 0) then
+            RH_A()
+        end
+    end
 end
