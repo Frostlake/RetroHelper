@@ -687,7 +687,9 @@ function RetroHelper_EventHandler.PLAYER_LOGIN()
 end
 
 function RetroHelper_EventHandler.MERCHANT_SHOW()
+    TargetUnit("player")
     RetroHelper_Repair()
+    TargetLastTarget()
     RetroHelper_Variables.isShop = true
     RetroHelper_Variables.shopOpenTime = GetTime()
 end
