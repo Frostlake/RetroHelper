@@ -619,7 +619,7 @@ function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
             RetroHelper_Queue()
         end
     end
-    RetroHelper_Repair()
+    --RetroHelper_Repair()
 end
 
 function RetroHelper_EventHandler.PLAYER_UNGHOST()
@@ -687,6 +687,7 @@ function RetroHelper_EventHandler.PLAYER_LOGIN()
 end
 
 function RetroHelper_EventHandler.MERCHANT_SHOW()
+    RetroHelper_Repair()
     RetroHelper_Variables.isShop = true
     RetroHelper_Variables.shopOpenTime = GetTime()
 end
