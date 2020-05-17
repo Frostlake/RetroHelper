@@ -666,11 +666,11 @@ function RetroHelper_EventHandler.ADDON_LOADED()
                             "|cffFF007F" ..
                                 RETROHELPER_VERSION .. " " .. "|cffFFFFFF" .. " #Author : " .. "|cffFF007F" .. RETROHELPER_AUTHOR .. "|cffFFFFFF" .. " #Note : " .. "|cff00D8FF" .. RETROHELPER_NOTE
         )
-        _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [WHISPER CHANNEL] player to party. " .. "|cffFFE400" .. "/invW")
-        _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [SAY CHANNEL] player to party. " .. "|cffFFE400" .. "/invS")
-        _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [GUILD CHANNEL] player to party. " .. "|cffFFE400" .. "/invG")
-        _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [YELL CHANNEL] player to party. " .. "|cffFFE400" .. "/invY")
-        _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the current target to party. " .. "|cffFFE400" .. "/invT")
+        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [WHISPER CHANNEL] player to party. " .. "|cffFFE400" .. "/invW")
+        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [SAY CHANNEL] player to party. " .. "|cffFFE400" .. "/invS")
+        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [GUILD CHANNEL] player to party. " .. "|cffFFE400" .. "/invG")
+        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [YELL CHANNEL] player to party. " .. "|cffFFE400" .. "/invY")
+        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the current target to party. " .. "|cffFFE400" .. "/invT")
     else
         _print("|cffFF007F" .. "Realm is not RetroWoW - " .. "|cff00D8FF" .. "Retro helper OFF [author : nslookup79@gmail.com]")
     end
