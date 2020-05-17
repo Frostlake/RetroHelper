@@ -654,6 +654,11 @@ function RetroHelper_EventHandler.ADDON_LOADED()
     RetroHelper_RegisterEvents()
     RetroHelper_EventHandler:UnregisterEvent("ADDON_LOADED")
     if (GetRealmName() == "RetroWoW") then
+        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [WHISPER CHANNEL] player to party. " .. "|cffFFE400" .. "/invW")
+        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [SAY CHANNEL] player to party. " .. "|cffFFE400" .. "/invS")
+        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [GUILD CHANNEL] player to party. " .. "|cffFFE400" .. "/invG")
+        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [YELL CHANNEL] player to party. " .. "|cffFFE400" .. "/invY")
+        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the current target to party. " .. "|cffFFE400" .. "/invT")
         local RETROHELPER_TITLE = GetAddOnMetadata("RetroHelper", "Title")
         local RETROHELPER_VERSION = GetAddOnMetadata("RetroHelper", "Version")
         local RETROHELPER_AUTHOR = GetAddOnMetadata("RetroHelper", "Author")
@@ -666,11 +671,6 @@ function RetroHelper_EventHandler.ADDON_LOADED()
                             "|cffFF007F" ..
                                 RETROHELPER_VERSION .. " " .. "|cffFFFFFF" .. " #Author : " .. "|cffFF007F" .. RETROHELPER_AUTHOR .. "|cffFFFFFF" .. " #Note : " .. "|cff00D8FF" .. RETROHELPER_NOTE
         )
-        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [WHISPER CHANNEL] player to party. " .. "|cffFFE400" .. "/invW")
-        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [SAY CHANNEL] player to party. " .. "|cffFFE400" .. "/invS")
-        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [GUILD CHANNEL] player to party. " .. "|cffFFE400" .. "/invG")
-        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the latest [YELL CHANNEL] player to party. " .. "|cffFFE400" .. "/invY")
-        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Invite the current target to party. " .. "|cffFFE400" .. "/invT")
     else
         _print("|cffFF007F" .. "Realm is not RetroWoW - " .. "|cff00D8FF" .. "Retro helper OFF [author : nslookup79@gmail.com]")
     end
@@ -799,7 +799,8 @@ RetroHelper_OnUpdateHandler:SetScript(
                 if bg_winner == 0 then
                     winner_name = "Horde"
                 end
-                _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Winner is " .. "|cffFFE400" .. winner_name)
+                UIErrorsFrame:Clear()
+                UIErrorsFrame:AddMessage("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Winner is " .. "|cffFFE400" .. winner_name)
                 LeaveBattlefield()
             end
         end
@@ -1139,7 +1140,7 @@ function RetroHelper_EventHandler.QUEST_DETAIL()
     if ((RetroHelper_GetCfg(qName, 2)) == true) then
         if (not IsShiftKeyDown()) then
             if ((RetroHelper_Variables.currentQuest == qName) and (RetroHelper_GetCfg(qName, 2))) then
-                if (not (string.find(qName, "Tokens") or string.find(qName, "Attunement") or string.find(qName, "Potion"))) then
+                if (not (string.find(qName, "Tokens") or string.find(qName, "PvP") or string.find(qName, "Potion"))) then
                     if (RetroHelper_Variables.worldChannelID ~= nil) then
                         if (RetroHelper_IsPlayerCanInvite()) then
                             local headTxt = ""
@@ -1660,8 +1661,8 @@ function RetroHelper_Queue()
     end
 end
 
-function RetroHelper_Repair()    
-  RetroHelper_ChatCommand(".repair")
+function RetroHelper_Repair()
+    RetroHelper_ChatCommand(".repair")
 end
 
 function RH_A()
