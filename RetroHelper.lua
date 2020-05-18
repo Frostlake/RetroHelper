@@ -623,9 +623,7 @@ function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
 end
 
 function RetroHelper_EventHandler.PLAYER_UNGHOST()
-    TargetUnit("player")
     RetroHelper_Repair()
-    TargetLastTarget()
 end
 
 function RetroHelper_EventHandler.ADDON_LOADED()
@@ -687,9 +685,6 @@ function RetroHelper_EventHandler.PLAYER_LOGIN()
 end
 
 function RetroHelper_EventHandler.MERCHANT_SHOW()
-    TargetUnit("player")
-    RetroHelper_Repair()
-    TargetLastTarget()
     RetroHelper_Variables.isShop = true
     RetroHelper_Variables.shopOpenTime = GetTime()
 end
@@ -1177,29 +1172,32 @@ function RetroHelper_EventHandler.QUEST_COMPLETE()
 end
 
 function RetroHelper_EventHandler.GOSSIP_SHOW()
-    local GossipType = {}
-    local gossipnr = nil
-    local gossipbreak = nil
-    _, GossipType[1], _, GossipType[2], _, GossipType[3], _, GossipType[4], _, GossipType[5] = GetGossipOptions()
+    if (GetUnitName("target") ~= "Rin'wosho the Trader") then
+        local GossipType = {}
+        local gossipnr = nil
+        local gossipbreak = nil
+        _, GossipType[1], _, GossipType[2], _, GossipType[3], _, GossipType[4], _, GossipType[5] = GetGossipOptions()
 
-    for i = 1, getn(GossipType) do
-        if GossipType[i] == "binder" then
-            local bind = GetBindLocation()
-            if bind ~= GetSubZoneText() then
+        for i = 1, getn(GossipType) do
+            if (GossipType[i] == "binder") then
+                local bind = GetBindLocation()
+                if bind ~= GetSubZoneText() then
+                    gossipbreak = true
+                end
+            elseif gossipnr then
                 gossipbreak = true
+            elseif (GossipType[i] == "trainer" or GossipType[i] == "vendor" or GossipType[i] == "battlemaster" or GossipType[i] == "gossip") then
+                --  elseif (GossipType[i] == "trainer" or GossipType[i] == "vendor" or GossipType[i] == "battlemaster" or GossipType[i] == "gossip") then
+                gossipnr = i
+            elseif GossipType[i] == "taxi" then
+                gossipnr = i
+                RetroHelper_CancleBuff("Increases speed by (.+)%%")
             end
-        elseif gossipnr then
-            gossipbreak = true
-        elseif (GossipType[i] == "trainer" or GossipType[i] == "vendor" or GossipType[i] == "battlemaster" or GossipType[i] == "gossip") then
-            gossipnr = i
-        elseif GossipType[i] == "taxi" then
-            gossipnr = i
-            RetroHelper_CancleBuff("Increases speed by (.+)%%")
         end
-    end
 
-    if not gossipbreak and gossipnr then
-        SelectGossipOption(gossipnr)
+        if not gossipbreak and gossipnr then
+            SelectGossipOption(gossipnr)
+        end
     end
 end
 
@@ -1670,8 +1668,9 @@ function RH_A()
 end
 function RH_B()
     if (GetNumBattlefieldStats() == 0) then
-        if (GetBattlefieldEstimatedWaitTime(1) == 0) then
-            RH_A()
-        end
+        _print("GetNumBattlefieldStats == 0")
+    end
+    if (GetBattlefieldEstimatedWaitTime(1) == 0) then
+        _print("GetBattlefieldEstimatedWaitTime(1) == 0")
     end
 end
