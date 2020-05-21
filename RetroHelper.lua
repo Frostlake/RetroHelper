@@ -991,6 +991,19 @@ function RetroHelper_EventHandler.PLAYER_TARGET_CHANGED(...)
 end
 
 function RetroHelper_EventHandler.CHAT_MSG_SYSTEM(...)
+    local function IsGuildMate(name)
+        if IsInGuild() then
+            local ngm = GetNumGuildMembers()
+            for i = 1, ngm do
+                n, rank, rankIndex, level, class, zone, note, officernote, online, status, classFileName = GetGuildRosterInfo(i)
+                if strlower(n) == strlower(name) then
+                    return true
+                end
+            end
+        end
+        return nil
+    end
+
     if (arg1 ~= nil) then
         if (arg1 == "You are now AFK: Away from Keyboard") then
             RetroHelper_Variables.isPlayerAFK = true
@@ -1001,8 +1014,11 @@ function RetroHelper_EventHandler.CHAT_MSG_SYSTEM(...)
                 SendChatMessage("[RetroHelper] " .. name .. ", Welcome to party !!", "PARTY")
             end
         elseif (string.find(arg1, "has come online.")) and (RetroHelper_GetCfg("CFG_AUTO_GREETINGS", 1) == true) then
-            if (RetroHelper_Variables.isPlayerAFK == true) then
-            -- to do somthing
+            if (RetroHelper_Variables.isPlayerAFK == true) then                
+                local _, _, name = string.find(arg1, "^.*%[(.*)%].*$")                
+                if (IsGuildMate(name)) then
+                    SendChatMessage("[RetroHelper] " .. name .. ", Welcome !! [AFK MSG]", "GUILD")
+                end
             end
         elseif (arg1 == "You have requested a duel.") and (RetroHelper_GetCfg("CFG_DUEL_HELPER", 1)) then
             RetroHelper_DuelStart()
@@ -1580,14 +1596,11 @@ function RetroHelper_ShopRepair()
             elseif (nDivinity < 10) and (class == "Paladin") and (isRich) and (IsSelling("Symbol of Divinity")) then
                 buyItem("Symbol of Divinity", nDivinity, 10, 5)
             elseif (nKings < 400) and (class == "Paladin") and (isRich) and (IsSelling("Symbol of Kings")) then
+                --elseif (nShard < 200) and (class == "Warlock") and (IsSelling("Soul Shard")) then
+                --  buyItem("Soul Shard", nShard, 200, 1)
                 buyItem("Symbol of Kings", nKings, 400, 1)
-
-            --elseif (nShard < 200) and (class == "Warlock") and (IsSelling("Soul Shard")) then
-              --  buyItem("Soul Shard", nShard, 200, 1)
-
             elseif (nShard < 200) and (class == "Warlock") and (IsSelling("Soul Shard")) then
                 buyItem("Soul Shard", nShard, 200, 200)
-
             elseif (nInfernalStone < 5) and (class == "Warlock") and (isRich) and (IsSelling("Infernal Stone")) then
                 buyItem("Infernal Stone", nInfernalStone, 5, 1)
             elseif (nDemonicFigurine < 5) and (class == "Warlock") and (isRich) and (IsSelling("Demonic Figurine")) then
@@ -1672,10 +1685,4 @@ function RH_A()
     local cmd = ".go alterac"
 end
 function RH_B()
-    if (GetNumBattlefieldStats() == 0) then
-        _print("GetNumBattlefieldStats == 0")
-    end
-    if (GetBattlefieldEstimatedWaitTime(1) == 0) then
-        _print("GetBattlefieldEstimatedWaitTime(1) == 0")
-    end
 end
