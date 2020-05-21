@@ -533,6 +533,7 @@ local RetroHelper_Events = {
     "TRAINER_CLOSED",
     "BATTLEFIELDS_SHOW",
     "PLAYER_UNGHOST",
+    "UPDATE_INVENTORY_ALERTS",
     "MINIMAP_ZONE_CHANGED",
     "CHAT_MSG_SPELL_HOSTILEPLAYER_DAMAGE",
     "CHAT_MSG_COMBAT_CREATURE_VS_CREATURE_HITS"
@@ -618,11 +619,14 @@ function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
         if (GetBattlefieldEstimatedWaitTime(1) == 0) then
             RetroHelper_Queue()
         end
-    end
-    --RetroHelper_Repair()
+    end    
 end
 
 function RetroHelper_EventHandler.PLAYER_UNGHOST()
+    RetroHelper_Repair()
+end
+
+function RetroHelper_EventHandler.UPDATE_INVENTORY_ALERTS()
     RetroHelper_Repair()
 end
 
@@ -1014,8 +1018,8 @@ function RetroHelper_EventHandler.CHAT_MSG_SYSTEM(...)
                 SendChatMessage("[RetroHelper] " .. name .. ", Welcome to party !!", "PARTY")
             end
         elseif (string.find(arg1, "has come online.")) and (RetroHelper_GetCfg("CFG_AUTO_GREETINGS", 1) == true) then
-            if (RetroHelper_Variables.isPlayerAFK == true) then                
-                local _, _, name = string.find(arg1, "^.*%[(.*)%].*$")                
+            if (RetroHelper_Variables.isPlayerAFK == true) then
+                local _, _, name = string.find(arg1, "^.*%[(.*)%].*$")
                 if (IsGuildMate(name)) then
                     SendChatMessage("[RetroHelper] " .. name .. ", Welcome !! [AFK MSG]", "GUILD")
                 end
@@ -1678,7 +1682,22 @@ function RetroHelper_Queue()
 end
 
 function RetroHelper_Repair()
-    RetroHelper_ChatCommand(".repair")
+    local function isNeedRepair()
+        if(UnitIsDeadOrGhost("player"))then
+            return false
+        end
+        for i = 1, 11 do
+            if (GetInventoryAlertStatus(i) ~= 0) then
+                return true
+            else
+                return false
+            end
+        end
+    end
+    if (isNeedRepair()) then
+        RetroHelper_ChatCommand(".repair " .. GetUnitName("player"))
+        _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "your equipment has been repaired.")
+    end
 end
 
 function RH_A()
