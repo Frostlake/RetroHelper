@@ -1581,8 +1581,13 @@ function RetroHelper_ShopRepair()
                 buyItem("Symbol of Divinity", nDivinity, 10, 5)
             elseif (nKings < 400) and (class == "Paladin") and (isRich) and (IsSelling("Symbol of Kings")) then
                 buyItem("Symbol of Kings", nKings, 400, 1)
+
+            --elseif (nShard < 200) and (class == "Warlock") and (IsSelling("Soul Shard")) then
+              --  buyItem("Soul Shard", nShard, 200, 1)
+
             elseif (nShard < 200) and (class == "Warlock") and (IsSelling("Soul Shard")) then
-                buyItem("Soul Shard", nShard, 200, 1)
+                buyItem("Soul Shard", nShard, 200, 200)
+
             elseif (nInfernalStone < 5) and (class == "Warlock") and (isRich) and (IsSelling("Infernal Stone")) then
                 buyItem("Infernal Stone", nInfernalStone, 5, 1)
             elseif (nDemonicFigurine < 5) and (class == "Warlock") and (isRich) and (IsSelling("Demonic Figurine")) then
