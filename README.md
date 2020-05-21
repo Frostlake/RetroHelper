@@ -46,7 +46,7 @@ Add-on features :
 
 
 
-## Author : Rainsong, Bozi, Frostwing <EE Guild> - nslookup79@gmail.com
+## Author : Frostwing, Divinewing <EE Guild> - nslookup79@gmail.com
 
 ## Special Thank's : <EE Guild> Uha
 
