@@ -4,6 +4,9 @@ RetroHelper_EventHandler:RegisterEvent("PLAYER_LOGIN")
 
 RetroHelper_OnUpdateHandler = CreateFrame("FRAME")
 
+CreateFrame("GameTooltip", "RH_Scan", nil, "GameTooltipTemplate")
+RH_Scan:SetOwner(RH_Scan, "ANCHOR_NONE")
+
 CreateFrame("GameTooltip", "RetroHelperBuffTooltip", nil, "GameTooltipTemplate")
 RetroHelperBuffTooltip:SetOwner(RetroHelperBuffTooltip, "ANCHOR_NONE")
 
@@ -619,7 +622,7 @@ function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
         if (GetBattlefieldEstimatedWaitTime(1) == 0) then
             RetroHelper_Queue()
         end
-    end    
+    end
 end
 
 function RetroHelper_EventHandler.PLAYER_UNGHOST()
@@ -1318,37 +1321,25 @@ end
 function RetroHelper_UseNoggenEliXir()
 end
 
-function RetroHelper_Buffed(obuff, unit, item)
-    local buff = strlower(obuff)
-    local tooltip = CM_Scan
+function RetroHelper_GetDurability(slotNum)
+    local tooltip = RH_Scan
     local textleft1 = getglobal(tooltip:GetName() .. "TextLeft1")
-    if (not unit) then
-        unit = "player"
-    end
-    if (item) then
-        return
-    end
+
     tooltip:SetOwner(UIParent, "ANCHOR_NONE")
-    tooltip:SetTrackingSpell()
-    local b = textleft1:GetText()
-    if (b and strfind(strlower(b), buff)) then
-        tooltip:Hide()
-        return "track", b
-    end
-    local c = nil
-    for i = 1, 16 do
-        tooltip:SetOwner(UIParent, "ANCHOR_NONE")
-        tooltip:SetUnitBuff(unit, i)
-        b = textleft1:GetText()
-        tooltip:Hide()
-        if (b and strfind(strlower(b), buff)) then
-            return "buff", i, b
-        elseif (c == b) then
-            break
+    tooltip:SetInventoryItem("player", slotNum)
+    for i = 1, 23 do
+        local text = getglobal("RH_ScanTextLeft" .. i):GetText()
+        if (not text) then
+           break
+        elseif (strfind(strlower(text), "durability")) then
+            tooltip:Hide()            
+            for curDura, maxDura in string.gfind(text, "Durability (.+) / (.+)") do
+                return curDura / maxDura * 100                
+            end           
         end
-        --c = b;
     end
     tooltip:Hide()
+    return 100
 end
 
 function RetroHelper_ShopRepair()
@@ -1580,7 +1571,7 @@ function RetroHelper_ShopRepair()
             elseif (nWarsongGulchBandage < 40) and (isRich) and (IsSelling("Warsong Gulch Runecloth Bandage")) then
                 buyItem("Warsong Gulch Runecloth Bandage", nWarsongGulchBandage, 40, 1)
             elseif (nNoggen < 200) and (isRich) and (IsSelling("Noggenfogger")) then
-                buyItem("Noggenfogger", nNoggen, 200, 1)
+                buyItem("Noggenfogger", nNoggen, 200, 200)
             elseif (nCandle < 200) and (class == "Priest") and (isRich) and (IsSelling("Sacred Candle")) then
                 buyItem("Sacred Candle", nCandle, 200, 20)
             elseif (nWildThornroot < 200) and (class == "Druid") and (isRich) and (IsSelling("Wild Thornroot")) then
@@ -1602,7 +1593,7 @@ function RetroHelper_ShopRepair()
             elseif (nKings < 400) and (class == "Paladin") and (isRich) and (IsSelling("Symbol of Kings")) then
                 --elseif (nShard < 200) and (class == "Warlock") and (IsSelling("Soul Shard")) then
                 --  buyItem("Soul Shard", nShard, 200, 1)
-                buyItem("Symbol of Kings", nKings, 400, 1)
+                buyItem("Symbol of Kings", nKings, 400, 200)
             elseif (nShard < 200) and (class == "Warlock") and (IsSelling("Soul Shard")) then
                 buyItem("Soul Shard", nShard, 200, 200)
             elseif (nInfernalStone < 5) and (class == "Warlock") and (isRich) and (IsSelling("Infernal Stone")) then
@@ -1683,16 +1674,15 @@ end
 
 function RetroHelper_Repair()
     local function isNeedRepair()
-        if(UnitIsDeadOrGhost("player"))then
+        if (UnitIsDeadOrGhost("player")) then
             return false
         end
-        for i = 1, 11 do
-            if (GetInventoryAlertStatus(i) ~= 0) then
+        for i = 1, 18 do
+            if (GetInventoryItemLink("player", i)) and (RetroHelper_GetDurability(i)<= 20) then
                 return true
-            else
-                return false
             end
         end
+        return false
     end
     if (isNeedRepair()) then
         RetroHelper_ChatCommand(".repair " .. GetUnitName("player"))
