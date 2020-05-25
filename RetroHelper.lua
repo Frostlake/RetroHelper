@@ -1115,6 +1115,10 @@ function RetroHelper_EventHandler.UI_ERROR_MESSAGE(...)
         UIErrorsFrame:Clear()
         RetroHelper_CancleBuff("Increases speed by (.+)%%")
     end
+    if(arg1 == "You are in shapeshift form")then
+        UIErrorsFrame:Clear()
+        RetroHelper_CancleBuff("stopped breathing")
+    end
     if (string.find(arg1, "standing")) then
     end
 end
@@ -1301,18 +1305,24 @@ function RetroHelper_GetCfg(value, option)
     end
 end
 
-function RetroHelper_CancleBuff(bName)
+function RetroHelper_CancleBuff(bName)    
     local counter = 0
     while GetPlayerBuff(counter) >= 0 do
         local index, untilCancelled = GetPlayerBuff(counter)
         RetroHelperBuffTooltip:SetPlayerBuff(index)
         local desc = RetroHelperBuffTooltipTextLeft2:GetText()
-        if desc then
+        if desc then            
+            if(string.find(desc, bName))then
+                CancelPlayerBuff(counter)
+                return
+            end
+            --[[
             _, _, msg = string.find(desc, bName)
             if msg then
                 CancelPlayerBuff(counter)
                 return
             end
+            ]]
         end
         counter = counter + 1
     end
