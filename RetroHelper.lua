@@ -502,6 +502,7 @@ local RetroHelper_Variables = {
     duel_state = false,
     duel_target = "",
     isShop = false,
+    battlegroundQueueTime = GetTime(),
     shopOpenTime = GetTime(),
     isTrainer = false,
     trainerOpenTime = GetTime(),
@@ -618,9 +619,42 @@ local function RetroHelper_MenuHandler(available, active, accept, complete)
 end
 
 function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
+    local bgQueueStats = nil
+    local bStats, mapName = nil, nil
+    local isDeserter = nil
+    for i = 1, 16 do
+        local dBuff = UnitDebuff("player", i)
+        if (dBuff) then
+            if (string.find(dBuff, "Ability_Druid_Cower")) then
+                isDeserter = true
+            end
+        end
+    end
+    for i = 1, MAX_BATTLEFIELD_QUEUES do
+        bStats, mapName = GetBattlefieldStatus(i)
+        if (bStats == "queued" or bStats == "confirm") then
+            bgQueueStats = true
+        end
+    end
     if (GetNumBattlefieldStats() == 0) then
         if (GetBattlefieldEstimatedWaitTime(1) == 0) then
-            RetroHelper_Queue()
+            if (GetNumPartyMembers() == 0) and (GetNumRaidMembers() == 0) then
+                if (not bgQueueStats) and (not isDeserter) then
+                    if (GetMinimapZoneText() ~= nil) then
+                        RetroHelper_Variables.battlegroundQueueTime = GetTime()
+                    end
+                end
+            --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Auto Battlefield Queue !!")
+            end
+        end
+    end
+
+    if (GetNumBattlefieldStats() == 0) then
+        if (GetBattlefieldEstimatedWaitTime(1) == 0) then
+            if (GetNumPartyMembers() == 0) and (GetNumRaidMembers() == 0) then
+                RetroHelper_Queue()
+            --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Auto Battlefield Queue !!")
+            end
         end
     end
 end
@@ -782,8 +816,38 @@ RetroHelper_OnUpdateHandler:SetScript(
         ----- add cfg
         if (GetTime() - RetroHelper_Variables.onUpdateTime >= 0.2) then
             RetroHelper_Variables.onUpdateTime = GetTime() + 0.2
+            local bgQueueStats = nil
+            local bStats, mapName = nil, nil
+            local isDeserter = nil
+            for i = 1, 16 do
+                local dBuff = UnitDebuff("player", i)
+                if (dBuff) then
+                    if (string.find(dBuff, "Ability_Druid_Cower")) then
+                        isDeserter = true
+                    end
+                end
+            end
+            for i = 1, MAX_BATTLEFIELD_QUEUES do
+                bStats, mapName = GetBattlefieldStatus(i)
+                if (bStats == "queued" or bStats == "confirm") then
+                    bgQueueStats = true
+                end
+            end
+            if (GetNumBattlefieldStats() == 0) then
+                if (GetBattlefieldEstimatedWaitTime(1) == 0) then
+                    if (GetNumPartyMembers() == 0) and (GetNumRaidMembers() == 0) then
+                        if (not bgQueueStats) and (not isDeserter) then
+                            if (GetMinimapZoneText() ~= nil) then
+                                if (GetTime() - RetroHelper_Variables.battlegroundQueueTime >= 0.5) and (GetTime() - RetroHelper_Variables.battlegroundQueueTime <= 1) then
+                                    RetroHelper_Queue()
+                                end
+                            end
+                        end
+                    --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Auto Battlefield Queue !!")
+                    end
+                end
+            end
         -- Do Something
-        --RetroHelper_UseNoggenEliXir()
         end
         -----
         if (RetroHelper_Variables.isShop) and (GetTime() - RetroHelper_Variables.shopOpenTime >= 0.25) and (not CursorHasItem()) then
@@ -1115,7 +1179,7 @@ function RetroHelper_EventHandler.UI_ERROR_MESSAGE(...)
         UIErrorsFrame:Clear()
         RetroHelper_CancleBuff("Increases speed by (.+)%%")
     end
-    if(arg1 == "You are in shapeshift form")then
+    if (arg1 == "You are in shapeshift form") then
         UIErrorsFrame:Clear()
         RetroHelper_CancleBuff("stopped breathing")
     end
@@ -1305,18 +1369,18 @@ function RetroHelper_GetCfg(value, option)
     end
 end
 
-function RetroHelper_CancleBuff(bName)    
+function RetroHelper_CancleBuff(bName)
     local counter = 0
     while GetPlayerBuff(counter) >= 0 do
         local index, untilCancelled = GetPlayerBuff(counter)
         RetroHelperBuffTooltip:SetPlayerBuff(index)
         local desc = RetroHelperBuffTooltipTextLeft2:GetText()
-        if desc then            
-            if(string.find(desc, bName))then
+        if desc then
+            if (string.find(desc, bName)) then
                 CancelPlayerBuff(counter)
                 return
             end
-            --[[
+        --[[
             _, _, msg = string.find(desc, bName)
             if msg then
                 CancelPlayerBuff(counter)
@@ -1340,12 +1404,12 @@ function RetroHelper_GetDurability(slotNum)
     for i = 1, 23 do
         local text = getglobal("RH_ScanTextLeft" .. i):GetText()
         if (not text) then
-           break
+            break
         elseif (strfind(strlower(text), "durability")) then
-            tooltip:Hide()            
+            tooltip:Hide()
             for curDura, maxDura in string.gfind(text, "Durability (.+) / (.+)") do
-                return curDura / maxDura * 100                
-            end           
+                return curDura / maxDura * 100
+            end
         end
     end
     tooltip:Hide()
@@ -1688,7 +1752,7 @@ function RetroHelper_Repair()
             return false
         end
         for i = 1, 18 do
-            if (GetInventoryItemLink("player", i)) and (RetroHelper_GetDurability(i)<= 20) then
+            if (GetInventoryItemLink("player", i)) and (RetroHelper_GetDurability(i) <= 20) then
                 return true
             end
         end
