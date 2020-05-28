@@ -7,6 +7,9 @@ RetroHelper_OnUpdateHandler = CreateFrame("FRAME")
 CreateFrame("GameTooltip", "RH_Scan", nil, "GameTooltipTemplate")
 RH_Scan:SetOwner(RH_Scan, "ANCHOR_NONE")
 
+CreateFrame("GameTooltip", "RH_ScanBuff", nil, "GameTooltipTemplate")
+RH_ScanBuff:SetOwner(RH_ScanBuff, "ANCHOR_NONE")
+
 CreateFrame("GameTooltip", "RetroHelperBuffTooltip", nil, "GameTooltipTemplate")
 RetroHelperBuffTooltip:SetOwner(RetroHelperBuffTooltip, "ANCHOR_NONE")
 
@@ -657,6 +660,11 @@ function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
             end
         end
     end
+
+    -- Battle Map
+    if (BattlefieldMinimap) then
+        RetroHelper_ShowBGMap()
+    end
 end
 
 function RetroHelper_EventHandler.PLAYER_UNGHOST()
@@ -668,9 +676,7 @@ function RetroHelper_EventHandler.UPDATE_INVENTORY_ALERTS()
 end
 
 function RetroHelper_EventHandler.ADDON_LOADED()
-    if (arg1 ~= "RetroHelper") then
-        return
-    end
+    -- retro helper
     SLASH_RETROHELPER1 = "/rh"
     SLASH_RETROHELPER2 = "/retrohelper"
     SlashCmdList["RETROHELPER"] = RetroHelper_Option
@@ -1393,6 +1399,38 @@ function RetroHelper_CancleBuff(bName)
 end
 
 function RetroHelper_UseNoggenEliXir()
+    function GetBuffDiscription(dis)
+        local num = 0
+        while GetPlayerBuff(num) >= 0 do
+            local index, untilCancelled = GetPlayerBuff(num)
+            RH_ScanBuff:SetPlayerBuff(index)
+            local txt = RH_ScanBuffTextLeft2:GetText()
+            if txt then
+                --  _print(txt)
+                if (string.find(strlower(txt), strlower(dis))) then
+                    return true
+                end
+            end
+            num = num + 1
+        end
+        return false
+    end
+    function UseNoggen()
+        for i = 0, 4 do
+            for j = 1, 18 do
+                if not (GetContainerItemLink(i, j) == nil) then
+                    if (strfind(GetContainerItemLink(i, j), "Noggenfogger Elixir") and (GetContainerItemCooldown(i, j) < 1.5)) then
+                        UseContainerItem(i, j)
+                        return
+                    end
+                end
+            end
+        end
+    end
+
+    if (not (GetBuffDiscription("feel smaller")) or (not GetBuffDiscription("feel light"))) then
+        UseNoggen()
+    end
 end
 
 function RetroHelper_GetDurability(slotNum)
@@ -1762,6 +1800,15 @@ function RetroHelper_Repair()
         RetroHelper_ChatCommand(".repair " .. GetUnitName("player"))
         _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "your equipment has been repaired.")
     end
+end
+
+function RetroHelper_ShowBGMap()
+    -- DEFAULT_POI_ICON_SIZE = 6
+    BattlefieldMinimap:SetScale(1.71)
+    if (not BattlefieldMinimap:IsShown()) then
+        BattlefieldMinimap:Show()
+    end
+    SetMapToCurrentZone()
 end
 
 function RH_A()
