@@ -1398,7 +1398,7 @@ function RetroHelper_CancleBuff(bName)
     end
 end
 
-function RetroHelper_UseNoggenEliXir()
+function RetroHelper_UseNoggenElixir()
     function GetBuffDiscription(dis)
         local num = 0
         while GetPlayerBuff(num) >= 0 do
@@ -1429,7 +1429,11 @@ function RetroHelper_UseNoggenEliXir()
     end
 
     if (not (GetBuffDiscription("feel smaller")) or (not GetBuffDiscription("feel light"))) then
-        UseNoggen()
+        if (not GetBuffDiscription("Magical resistances increased by 100")) then
+            if (not GetBuffDiscription("Increases speed by (.+)%%")) then
+                UseNoggen()
+            end
+        end
     end
 end
 
