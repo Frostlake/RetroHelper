@@ -509,7 +509,7 @@ local RetroHelper_Variables = {
     shopOpenTime = GetTime(),
     isTrainer = false,
     trainerOpenTime = GetTime(),
-    onUpdateTime = GetTime()
+    onUpdateTime = GetTime()    
 }
 
 local RetroHelper_RecentInvList = {}
@@ -541,6 +541,7 @@ local RetroHelper_Events = {
     "BATTLEFIELDS_SHOW",
     "PLAYER_UNGHOST",
     "UPDATE_INVENTORY_ALERTS",
+    "PLAYER_AURAS_CHANGED",
     "MINIMAP_ZONE_CHANGED",
     "CHAT_MSG_SPELL_HOSTILEPLAYER_DAMAGE",
     "CHAT_MSG_COMBAT_CREATURE_VS_CREATURE_HITS"
@@ -654,10 +655,8 @@ function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
 
     if (GetNumBattlefieldStats() == 0) then
         if (GetBattlefieldEstimatedWaitTime(1) == 0) then
-            if (GetNumPartyMembers() == 0) and (GetNumRaidMembers() == 0) then
-                RetroHelper_Queue()
-            --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Auto Battlefield Queue !!")
-            end
+            RetroHelper_Queue()
+        --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Auto Battlefield Queue !!")
         end
     end
 
@@ -673,6 +672,9 @@ end
 
 function RetroHelper_EventHandler.UPDATE_INVENTORY_ALERTS()
     RetroHelper_Repair()
+end
+
+function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
 end
 
 function RetroHelper_EventHandler.ADDON_LOADED()
@@ -719,6 +721,10 @@ function RetroHelper_EventHandler.ADDON_LOADED()
     else
         _print("|cffFF007F" .. "Realm is not RetroWoW - " .. "|cff00D8FF" .. "Retro helper OFF [author : nslookup79@gmail.com]")
     end
+end
+
+function RH_GetVer()
+    _print("[RetroHelper]: Current Version is : "..GetAddOnMetadata("RetroHelper", "Version"))
 end
 
 function RetroHelper_EventHandler.PLAYER_LOGIN()
@@ -841,16 +847,14 @@ RetroHelper_OnUpdateHandler:SetScript(
             end
             if (GetNumBattlefieldStats() == 0) then
                 if (GetBattlefieldEstimatedWaitTime(1) == 0) then
-                    if (GetNumPartyMembers() == 0) and (GetNumRaidMembers() == 0) then
-                        if (not bgQueueStats) and (not isDeserter) then
-                            if (GetMinimapZoneText() ~= nil) then
-                                if (GetTime() - RetroHelper_Variables.battlegroundQueueTime >= 0.5) and (GetTime() - RetroHelper_Variables.battlegroundQueueTime <= 1) then
-                                    RetroHelper_Queue()
-                                end
+                    if (not bgQueueStats) and (not isDeserter) then
+                        if (GetMinimapZoneText() ~= nil) then
+                            if (GetTime() - RetroHelper_Variables.battlegroundQueueTime >= 0.5) and (GetTime() - RetroHelper_Variables.battlegroundQueueTime <= 1) then
+                                RetroHelper_Queue()
                             end
                         end
-                    --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Auto Battlefield Queue !!")
                     end
+                --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Auto Battlefield Queue !!")
                 end
             end
         -- Do Something
@@ -1399,7 +1403,7 @@ function RetroHelper_CancleBuff(bName)
 end
 
 function RetroHelper_UseNoggenElixir()
-    function GetBuffDiscription(dis)
+    local function GetBuffDiscription(dis)
         local num = 0
         while GetPlayerBuff(num) >= 0 do
             local index, untilCancelled = GetPlayerBuff(num)
@@ -1407,7 +1411,7 @@ function RetroHelper_UseNoggenElixir()
             local txt = RH_ScanBuffTextLeft2:GetText()
             if txt then
                 --  _print(txt)
-                if (string.find(strlower(txt), strlower(dis))) then
+                if (string.find(strlower(txt), strlower(dis))) then                    
                     return true
                 end
             end
@@ -1415,7 +1419,7 @@ function RetroHelper_UseNoggenElixir()
         end
         return false
     end
-    function UseNoggen()
+    local function UseNoggen()
         for i = 0, 4 do
             for j = 1, 18 do
                 if not (GetContainerItemLink(i, j) == nil) then
@@ -1428,7 +1432,17 @@ function RetroHelper_UseNoggenElixir()
         end
     end
 
-    if (not (GetBuffDiscription("feel smaller")) or (not GetBuffDiscription("feel light"))) then
+    local function GetFeatherTime()
+        for i = 0, 30 do
+            local temp = GetPlayerBuffTexture(i)
+            if (temp and strfind(temp, "FeatherFall"))then
+                return GetPlayerBuffTimeLeft(i)                
+            end
+        end
+        return 0
+    end
+     
+    if (not (GetBuffDiscription("feel smaller")) or (not GetBuffDiscription("feel light"))) or (GetFeatherTime() <= 30) then
         if (not GetBuffDiscription("Magical resistances increased by 100")) then
             if (not GetBuffDiscription("Increases speed by (.+)%%")) then
                 UseNoggen()
