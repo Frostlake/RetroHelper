@@ -662,7 +662,7 @@ function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
 
     -- Battle Map
     if (BattlefieldMinimap) then
-        RetroHelper_ShowBGMap()
+       -- RetroHelper_ShowBGMap()
     end
 end
 
@@ -714,9 +714,7 @@ function RetroHelper_EventHandler.ADDON_LOADED()
             RETROHELPER_TITLE ..
                 " " ..
                     "|cffFFFFFF" ..
-                        " #Version : " ..
-                            "|cffFF007F" ..
-                                RETROHELPER_VERSION .. " " .. "|cffFFFFFF" .. " #Author : " .. "|cffFF007F" .. RETROHELPER_AUTHOR .. "|cffFFFFFF" .. " #Note : " .. "|cff00D8FF" .. RETROHELPER_NOTE
+                         " #Author : " .. "|cffFF007F" .. RETROHELPER_AUTHOR .. "|cffFFFFFF" .. " #Note : " .. "|cff00D8FF" .. RETROHELPER_NOTE
         )
     else
         _print("|cffFF007F" .. "Realm is not RetroWoW - " .. "|cff00D8FF" .. "Retro helper OFF [author : nslookup79@gmail.com]")
@@ -767,7 +765,7 @@ function RetroHelper_EventHandler.CHAT_MSG_SPELL_HOSTILEPLAYER_DAMAGE()
                     (spell == "Fear") or
                     (spell == "Soul Fire")
              then
-                TargetByName(eName)
+                TargetByName(eName, 1)
                 eTarget = GetUnitName("targettarget")
                 if (CheckInteractDistance("target", 4)) then
                     inDistance = "Close"
@@ -822,7 +820,7 @@ RetroHelper_OnUpdateHandler:SetScript(
     function(...)
         if (RetroHelper_GetCfg("CFG_DUEL_HELPER", 1)) then
             if (RetroHelper_Variables.duel_state == true) then
-                TargetByName(RetroHelper_Variables.duel_target)
+                TargetByName(RetroHelper_Variables.duel_target, 1)
             end
         end
         ----- add cfg
@@ -1304,7 +1302,7 @@ end
 
 function RetroHelper_EventHandler.DUEL_REQUESTED()
     if (RetroHelper_GetCfg("CFG_DUEL_HELPER", 1)) then
-        TargetByName(arg1)
+        TargetByName(arg1, 1)
         _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. " Duel request!! The target is fixed to the current target until the duel is finished. - Opponent : " .. "|cffFFE400" .. arg1)
         RetroHelper_Variables.duel_state = true
         RetroHelper_Variables.duel_target = arg1
@@ -1821,7 +1819,7 @@ function RetroHelper_Repair()
 end
 
 function RetroHelper_ShowBGMap()
-    -- DEFAULT_POI_ICON_SIZE = 6
+    DEFAULT_POI_ICON_SIZE = 6
     BattlefieldMinimap:SetScale(1.71)
     if (not BattlefieldMinimap:IsShown()) then
         BattlefieldMinimap:Show()
