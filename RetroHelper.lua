@@ -526,6 +526,7 @@ local RetroHelper_Variables = {
 }
 
 local RetroHelper_RecentInvList = {}
+local RetroHelper_RecentWhisperList = {}
 
 local RetroHelper_Events = {
     "CHAT_MSG_CHANNEL",
@@ -741,7 +742,7 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
                 isBlind = "Blind, "
                 isNeedWarning = true
             elseif (string.find(strlower(txt), "frozen")) then
-                isFrozen = "Freezing Trap, "
+                isFrozen = "Freezing Trap / Frost Nova, "
                 isNeedWarning = true
             elseif (string.find(strlower(txt), "silence")) then
                 isSilence = "Silence, "
@@ -754,7 +755,10 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
     end
     if (RetroHelper_GetCfg("CFG_DEBUFF_NOTICE", 1) == true) then
         if (isNeedWarning) then
-            _sayx("[RetroHelper]: Player Lost Control - " .. isFeared .. isFlee .. isCharm .. isPoly .. isSap .. isStun .. isBlind .. isFrozen .. isSilence .. "!!")
+            --_sayx("[RetroHelper]: Player Lost Control - " .. isFeared .. isFlee .. isCharm .. isPoly .. isSap .. isStun .. isBlind .. isFrozen .. isSilence .. "!!")
+            _sayx("[RetroHelper]: Player Control Lost !!")
+        else
+            _sayx("[RetroHelper]: Player Control Gained !!")
         end
     end
 
@@ -763,17 +767,18 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
             for i = 1, GetNumRaidMembers() do
                 if (CheckInteractDistance("raid" .. i, 4)) and (not UnitIsDeadOrGhost("raid" .. i)) and (not UnitIsUnit("raid" .. i, "player")) then
                     local uClass = UnitClass("raid" .. i)
+                    local uName = UnitName("raid" .. i)
                     if (isFeared ~= "") or (isCharm ~= "") or (isPoly ~= "") or (isFrozen ~= "") or (isSilence ~= "") then
                         if (uClass == "Paladin") or (uClass == "Priest") then
-                            SendChatMessage("[RetroHelper] Dispell My Debuff Please !!", "WHISPER", nil, UnitName("raid" .. i))
+                            _whisperx("[RetroHelper]: Dispell My Debuff Please !!", uName)
                         end
                     elseif (isBlind ~= "") then
                         if (uClass == "Paladin") or (uClass == "Druid") or (uClass == "Shaman") then
-                            SendChatMessage("[RetroHelper] Dispell Blind Please !!", "WHISPER", nil, UnitName("raid" .. i))
+                            _whisperx("[RetroHelper]: Dispell Blind Please !!", uName)
                         end
                     elseif (isCOT ~= "") then
                         if (uClass == "Mage") or (uClass == "Druid") then
-                            SendChatMessage("[RetroHelper] Dispell My Debuff Please !!", "WHISPER", nil, UnitName("raid" .. i))
+                            _whisperx("[RetroHelper]: Dispell My Debuff Please !!", uName)
                         end
                     end
                 end
@@ -782,17 +787,18 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
             for i = 1, GetNumPartyMembers() do
                 if (CheckInteractDistance("party" .. i, 4)) and (not UnitIsDeadOrGhost("party" .. i)) and (not UnitIsUnit("party" .. i, "player")) then
                     local uClass = UnitClass("party" .. i)
+                    local uName = UnitName("party" .. i)
                     if (isFeared ~= "") or (isCharm ~= "") or (isPoly ~= "") or (isFrozen ~= "") or (isSilence ~= "") then
                         if (uClass == "Paladin") or (uClass == "Priest") then
-                            SendChatMessage("[RetroHelper] Dispell My Debuff Please !!", "WHISPER", nil, UnitName("party" .. i))
+                            _whisperx("[RetroHelper]: Dispell My Debuff Please !!", uName)
                         end
                     elseif (isBlind ~= "") then
                         if (uClass == "Paladin") or (uClass == "Druid") or (uClass == "Shaman") then
-                            SendChatMessage("[RetroHelper] Dispell Blind Please !!", "WHISPER", nil, UnitName("party" .. i))
+                            _whisperx("[RetroHelper]: Dispell Blind Please !!", uName)
                         end
                     elseif (isCOT ~= "") then
                         if (uClass == "Mage") or (uClass == "Druid") then
-                            SendChatMessage("[RetroHelper] Dispell My Debuff Please !!", "WHISPER", nil, UnitName("party" .. i))
+                            _whisperx("[RetroHelper]: Dispell My Debuff Please !!", uName)
                         end
                     end
                 end
@@ -1519,7 +1525,7 @@ function RetroHelper_CancleBuff(bName)
     end
 end
 
-function RetroHelper_UseNoggenElixir()
+function RetroHelper_EE()
     local function GetBuffDiscription(dis)
         local num = 0
         while GetPlayerBuff(num) >= 0 do
@@ -1536,18 +1542,6 @@ function RetroHelper_UseNoggenElixir()
         end
         return false
     end
-    local function UseNoggen()
-        for i = 0, 4 do
-            for j = 1, 18 do
-                if not (GetContainerItemLink(i, j) == nil) then
-                    if (strfind(GetContainerItemLink(i, j), "Noggenfogger Elixir") and (GetContainerItemCooldown(i, j) == 0)) then
-                        UseContainerItem(i, j)
-                        return
-                    end
-                end
-            end
-        end
-    end
 
     local function GetFeatherTime()
         for i = 0, 30 do
@@ -1559,65 +1553,49 @@ function RetroHelper_UseNoggenElixir()
         return 0
     end
 
-    if (not (GetBuffDiscription("feel smaller")) or (not GetBuffDiscription("feel light"))) or (GetFeatherTime() <= 30) then
-        if (not GetBuffDiscription("Magical resistances increased by 100")) then
-            if (not GetBuffDiscription("Increases speed by (.+)%%")) then
-                UseNoggen()
+    -- Use Potions
+    if (true) then
+        if (UnitAffectingCombat("player")) then
+            local uClass = UnitClass("player")
+            if (RH_UnitHP("player") <= 40) then
+                RetroHelper_UseItem("Healing Draught")
+            elseif (RH_UnitMP("player") <= 15) and (not (uClass == "Rogue" or uClass == "Warrior" or uClass == "Druid")) then
+                RetroHelper_UseItem("Mana Draught")
             end
+        end
+    end
+
+    -- Buff Items
+    local tName = UnitName("target")
+    if (not tName) or (tName and (UnitIsEnemy("target", "player")) and (not CheckInteractDistance("target", 3))) then
+        if (not (GetBuffDiscription("feel smaller")) or (not GetBuffDiscription("feel light"))) or (GetFeatherTime() <= 30) then
+            if (not GetBuffDiscription("Magical resistances increased by 100")) then
+                if (not GetBuffDiscription("Increases speed by (.+)%%")) then
+                    RetroHelper_UseItem("Noggenfogger Elixir")
+                end
+            end
+        elseif (not RetroHelper_Buffed("Rumsey Rum", "player")) and (not UnitAffectingCombat("player")) then
+            RetroHelper_UseItem("Rumsey Rum")
         end
     end
 end
 
-function RetroHelper_UseNoggenElixir_Melee()
-    local function GetBuffDiscription(dis)
-        local num = 0
-        while GetPlayerBuff(num) >= 0 do
-            local index, untilCancelled = GetPlayerBuff(num)
-            RH_ScanBuff:SetPlayerBuff(index)
-            local txt = RH_ScanBuffTextLeft2:GetText()
-            if txt then
-                --  _print(txt)
-                if (string.find(strlower(txt), strlower(dis))) then
+function RetroHelper_UseItem(name)
+    local link = nil
+    local bagslots = nil
+    for bag = 0, NUM_BAG_FRAMES do
+        bagslots = GetContainerNumSlots(bag)
+        if bagslots and bagslots > 0 then
+            for slot = 1, bagslots do
+                link = GetContainerItemLink(bag, slot)
+                if (link) and (string.find(link, name)) and (GetContainerItemCooldown(bag, slot) == 0) then
+                    UseContainerItem(bag, slot)
                     return true
                 end
             end
-            num = num + 1
-        end
-        return false
-    end
-    local function UseNoggen()
-        for i = 0, 4 do
-            for j = 1, 18 do
-                if not (GetContainerItemLink(i, j) == nil) then
-                    if (strfind(GetContainerItemLink(i, j), "Noggenfogger Elixir") and (GetContainerItemCooldown(i, j) == 0)) then
-                        UseContainerItem(i, j)
-                        return
-                    end
-                end
-            end
         end
     end
-
-    local function GetFeatherTime()
-        for i = 0, 30 do
-            local temp = GetPlayerBuffTexture(i)
-            if (temp and strfind(temp, "FeatherFall")) then
-                return GetPlayerBuffTimeLeft(i)
-            end
-        end
-        return 0
-    end
-
-    local tName = UnitName("target")
-    if (not tName) or (tName and (not CheckInteractDistance("target", 3))) then
-        if (not (GetBuffDiscription("feel smaller")) or (not GetBuffDiscription("feel light"))) or (GetFeatherTime() <= 30) then
-            if (not GetBuffDiscription("Magical resistances increased by 100")) then
-                if (not GetBuffDiscription("Increases speed by (.+)%%")) then
-                    UseNoggen()
-                end
-            end
-        end
-    end
+    return false
 end
 
 function RetroHelper_GetDurability(slotNum)
@@ -1971,6 +1949,37 @@ function RetroHelper_Queue()
     end
 end
 
+function RetroHelper_Buffed(bName, unit)
+    local buff = strlower(bName)
+    local tooltip = RH_Scan
+    local textleft1 = getglobal(tooltip:GetName() .. "TextLeft1")
+    if (not unit) then
+        unit = "player"
+    end
+
+    tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+    tooltip:SetTrackingSpell()
+    local b = textleft1:GetText()
+    if (b and strfind(strlower(b), buff)) then
+        tooltip:Hide()
+        return "track", b
+    end
+    local c = nil
+    for i = 1, 16 do
+        tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+        tooltip:SetUnitBuff(unit, i)
+        b = textleft1:GetText()
+        tooltip:Hide()
+        if (b and strfind(strlower(b), buff)) then
+            return "buff", i, b
+        elseif (c == b) then
+            break
+        end
+        --c = b;
+    end
+    tooltip:Hide()
+end
+
 function RetroHelper_Repair()
     local function isNeedRepair()
         if (UnitIsDeadOrGhost("player")) then
@@ -2003,6 +2012,22 @@ function _sayx(msg)
         RetroHelper_Variables.lastMassage = msg
         SendChatMessage(msg, "SAY")
     end
+end
+
+function _whisperx(msg, name)
+    local wTime = RetroHelper_RecentWhisperList[name]
+    if (wTime == nil) or (GetTime() - wTime >= 5) then
+        RetroHelper_RecentWhisperList[name] = GetTime()
+        SendChatMessage(msg, "WHISPER", nil, name)
+    end
+end
+
+function RH_UnitHP(unit)
+    return (UnitHealth(unit) / UnitHealthMax(unit)) * 100
+end
+
+function RH_UnitMP(unit)
+    return (UnitMana(unit) / UnitManaMax(unit)) * 100
 end
 
 function _say(msg)
