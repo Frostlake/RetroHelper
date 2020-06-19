@@ -522,7 +522,7 @@ local RetroHelper_Variables = {
     isTrainer = false,
     trainerOpenTime = GetTime(),
     onUpdateTime = GetTime(),
-    lastMassage = ""
+    lastMessage = ""
 }
 
 local RetroHelper_RecentInvList = {}
@@ -2008,8 +2008,8 @@ function RetroHelper_ShowBGMap()
 end
 
 function _sayx(msg)
-    if (msg ~= RetroHelper_Variables.lastMassage) then
-        RetroHelper_Variables.lastMassage = msg
+    if (msg ~= RetroHelper_Variables.lastMessage) then
+        RetroHelper_Variables.lastMessage = msg
         SendChatMessage(msg, "SAY")
     end
 end
