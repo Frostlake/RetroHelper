@@ -1557,8 +1557,8 @@ function RetroHelper_EE()
     if (true) then
         if (UnitAffectingCombat("player")) then
             local uClass = UnitClass("player")
-            if (RH_UnitHP("player") <= 40) then
-                RetroHelper_UseItem("Healing Draught")
+            if (RH_UnitHP("player") <= 40) and (not RetroHelper_UseItem("Healing Draught")) and RetroHelper_UseItem("Healthstone") then
+                -- to do anything ...
             elseif (RH_UnitMP("player") <= 15) and (not (uClass == "Rogue" or uClass == "Warrior" or uClass == "Druid")) then
                 RetroHelper_UseItem("Mana Draught")
             end
