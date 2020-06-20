@@ -522,7 +522,8 @@ local RetroHelper_Variables = {
     isTrainer = false,
     trainerOpenTime = GetTime(),
     onUpdateTime = GetTime(),
-    lastMessage = ""
+    lastMessage = "",
+    isCurrentCasting = false
 }
 
 local RetroHelper_RecentInvList = {}
@@ -556,6 +557,10 @@ local RetroHelper_Events = {
     "PLAYER_UNGHOST",
     "UPDATE_INVENTORY_ALERTS",
     "PLAYER_AURAS_CHANGED",
+    "SPELLCAST_START",
+    "SPELLCAST_STOP",
+    "SPELLCAST_FAILED",
+    "SPELLCAST_INTERRUPTED",
     "MINIMAP_ZONE_CHANGED",
     "CHAT_MSG_SPELL_HOSTILEPLAYER_DAMAGE",
     "CHAT_MSG_COMBAT_CREATURE_VS_CREATURE_HITS"
@@ -688,6 +693,22 @@ function RetroHelper_EventHandler.UPDATE_INVENTORY_ALERTS()
     RetroHelper_Repair()
 end
 
+function RetroHelper_EventHandler.SPELLCAST_START()
+    RetroHelper_Variables.isCurrentCasting = true
+end
+
+function RetroHelper_EventHandler.SPELLCAST_STOP()
+    RetroHelper_Variables.isCurrentCasting = false
+end
+
+function RetroHelper_EventHandler.SPELLCAST_FAILED()
+    RetroHelper_Variables.isCurrentCasting = false
+end
+
+function RetroHelper_EventHandler.SPELLCAST_INTERRUPTED()
+    RetroHelper_Variables.isCurrentCasting = false
+end
+
 function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
     -- Feared .
     -- Fleeing in terror
@@ -741,7 +762,7 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
             elseif (string.find(strlower(txt), "disoriented")) then
                 isBlind = "Blind, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "frozen")) then
+            elseif (string.find(strlower(txt), "frozen")) and  not (string.find(strlower(txt), "in place."))then
                 isFrozen = "Freezing Trap / Frost Nova, "
                 isNeedWarning = true
             elseif (string.find(strlower(txt), "silence")) then
@@ -756,7 +777,7 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
     if (RetroHelper_GetCfg("CFG_DEBUFF_NOTICE", 1) == true) then
         if (isNeedWarning) then
             --_sayx("[RetroHelper]: Player Lost Control - " .. isFeared .. isFlee .. isCharm .. isPoly .. isSap .. isStun .. isBlind .. isFrozen .. isSilence .. "!!")
-            _sayx("[RetroHelper]: Player Control Lost !!")
+            _sayx("[RetroHelper]: Player Control Lost or Silenced !!")
         else
             _sayx("[RetroHelper]: Player Control Gained !!")
         end
@@ -1574,7 +1595,7 @@ function RetroHelper_EE()
                     RetroHelper_UseItem("Noggenfogger Elixir")
                 end
             end
-        elseif (not RetroHelper_Buffed("Rumsey Rum", "player")) and (not UnitAffectingCombat("player")) then
+        elseif (not RetroHelper_Buffed("Rumsey Rum", "player")) and (not UnitAffectingCombat("player"))  and (not RetroHelper_Variables.isCurrentCasting)then
             RetroHelper_UseItem("Rumsey Rum")
         end
     end
