@@ -125,7 +125,7 @@ function RetroHelper_CreateOptionsFrame()
 							end
 							this:SetChecked(true)
 							v2[4] = true
-							RetroHelper_Variables.lastchatCommandTime = RetroHelper_Variables.lastchatCommandTime + 120
+							RetroHelper_Variables.lastchatCommand = ""
 							RetroHelper_Queue()
 						end
 					end

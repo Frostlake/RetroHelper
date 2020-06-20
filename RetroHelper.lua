@@ -528,6 +528,7 @@ RetroHelper_Variables = {
     isCurrentCasting = false,
     pvpKillCount = 0,
     honorPoint = 0
+    
 }
 
 local RetroHelper_RecentInvList = {}
@@ -671,7 +672,7 @@ function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
     if (GetNumBattlefieldStats() == 0) then
         if (GetBattlefieldEstimatedWaitTime(1) == 0) then
             RetroHelper_Variables.pvpKillCount = 0
-            RetroHelper_Variables.honorPoint = 0
+            RetroHelper_Variables.honorPoint = 0            
         --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Auto Battlefield Queue !!")
         end
     end
@@ -1049,7 +1050,7 @@ RetroHelper_OnUpdateHandler:SetScript(
                 else
                     result = "You Lose !!"
                 end
-
+               
                 _printx(
                     "|cff00D8FF" ..
                         "[RetroHelper]: " ..
@@ -1098,9 +1099,9 @@ function RetroHelper_EventHandler.CHAT_MSG_CHANNEL(...)
         end
     end
     -- for world buffs
-    if (string.find(strlower(arg1), strlower("buff inc"))) then
+    if (string.find(strlower(arg1), strlower("buff"))) and ((string.find(strlower(arg1), strlower("inc"))) or(string.find(strlower(arg1), strlower("in"))) or(string.find(strlower(arg1), strlower("min")))  or  (string.find(strlower(arg1), strlower("com"))))  then
         PlaySoundFile("Sound\\Interface\\ReadyCheck.wav")
-        _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "World Buff Incoming Notify - MSG : [" .. "|cffFFE400" .. arg2 .. "|cff5CD1E5" .. "]: " .. arg1)
+        _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "World Buff Incoming Notify - MSG : [" .. "|cffFFE400" .. arg2 .."|cffFFFFFF".."]: ".. "|cff5CD1E5" .. arg1)
     end
 end
 
