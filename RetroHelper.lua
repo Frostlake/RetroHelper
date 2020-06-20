@@ -500,7 +500,7 @@ local RetroHelper_QuestObjects = {
     }
 }
 
-local RetroHelper_Variables = {
+RetroHelper_Variables = {
     playerName = "",
     currentQuest = "",
     latestAcceptQuest = "",
