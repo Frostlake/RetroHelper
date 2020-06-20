@@ -2014,7 +2014,7 @@ function RetroHelper_InvTarget()
 end
 
 function RetroHelper_ChatCommand(cmd)
-    if (RetroHelper_Variables.lastchatCommand ~= cmd) or (GetTime() - RetroHelper_Variables.lastchatCommandTime >= 60) then
+    if (RetroHelper_Variables.lastchatCommand ~= cmd) or (GetTime() - RetroHelper_Variables.lastchatCommandTime >= 120) then
         RetroHelper_Variables.lastchatCommand = cmd
         RetroHelper_Variables.lastchatCommandTime = GetTime()
         DEFAULT_CHAT_FRAME.editBox:SetText(cmd)
