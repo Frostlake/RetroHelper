@@ -719,6 +719,7 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
     -- Disoriented. (Blind)
     -- Frozen. (freezing trap)
     -- Silenced.
+    -- Horrified. (warlock's instant fear spell)
 
     -- Speaking Demonic increasing casting time by (curse of tongues)
 
@@ -731,6 +732,7 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
     local isBlind = ""
     local isFrozen = ""
     local isSilence = ""
+    local isHorrifed = ""
     local isNeedWarning = false
 
     local isCOT = ""
@@ -761,6 +763,9 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
                 isNeedWarning = true
             elseif (string.find(strlower(txt), "disoriented")) then
                 isBlind = "Blind, "
+                isNeedWarning = true
+            elseif (string.find(strlower(txt), "horrified.")) then
+                isHorrifed = "Horrified, "
                 isNeedWarning = true
             elseif (string.find(strlower(txt), "frozen")) and  not (string.find(strlower(txt), "in place."))then
                 isFrozen = "Freezing Trap / Frost Nova, "
