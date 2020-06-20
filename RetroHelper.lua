@@ -517,13 +517,17 @@ local RetroHelper_Variables = {
     duel_state = false,
     duel_target = "",
     isShop = false,
-    battlegroundQueueTime = GetTime(),
     shopOpenTime = GetTime(),
     isTrainer = false,
     trainerOpenTime = GetTime(),
     onUpdateTime = GetTime(),
     lastMessage = "",
-    isCurrentCasting = false
+    battlegroundQueueReady = false,
+    lastchatCommand = "",
+    lastchatCommandTime = GetTime(),
+    isCurrentCasting = false,
+    pvpKillCount = 0,
+    honorPoint = 0
 }
 
 local RetroHelper_RecentInvList = {}
@@ -536,6 +540,7 @@ local RetroHelper_Events = {
     "CHAT_MSG_SAY",
     "CHAT_MSG_YELL",
     "CHAT_MSG_SYSTEM",
+    "CHAT_MSG_COMBAT_HONOR_GAIN",
     "UI_INFO_MESSAGE",
     "UI_ERROR_MESSAGE",
     "LOOT_BIND_CONFIRM",
@@ -557,6 +562,7 @@ local RetroHelper_Events = {
     "PLAYER_UNGHOST",
     "UPDATE_INVENTORY_ALERTS",
     "PLAYER_AURAS_CHANGED",
+    "PLAYER_PVP_KILLS_CHANGED",
     "SPELLCAST_START",
     "SPELLCAST_STOP",
     "SPELLCAST_FAILED",
@@ -644,37 +650,28 @@ end
 function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
     local bgQueueStats = nil
     local bStats, mapName = nil, nil
-    local isDeserter = nil
-    for i = 1, 16 do
-        local dBuff = UnitDebuff("player", i)
-        if (dBuff) then
-            if (string.find(dBuff, "Ability_Druid_Cower")) then
-                isDeserter = true
-            end
-        end
-    end
     for i = 1, MAX_BATTLEFIELD_QUEUES do
         bStats, mapName = GetBattlefieldStatus(i)
         if (bStats == "queued" or bStats == "confirm") then
             bgQueueStats = true
         end
     end
+
+    RetroHelper_Variables.battlegroundQueueReady = false
     if (GetNumBattlefieldStats() == 0) then
         if (GetBattlefieldEstimatedWaitTime(1) == 0) then
             if (GetNumPartyMembers() == 0) and (GetNumRaidMembers() == 0) then
-                if (not bgQueueStats) and (not isDeserter) then
-                    if (GetMinimapZoneText() ~= nil) then
-                        RetroHelper_Variables.battlegroundQueueTime = GetTime()
-                    end
+                if (not bgQueueStats) then
+                    RetroHelper_Variables.battlegroundQueueReady = true
                 end
-            --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Auto Battlefield Queue !!")
             end
         end
     end
 
     if (GetNumBattlefieldStats() == 0) then
         if (GetBattlefieldEstimatedWaitTime(1) == 0) then
-            RetroHelper_Queue()
+            RetroHelper_Variables.pvpKillCount = 0
+            RetroHelper_Variables.honorPoint = 0
         --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Auto Battlefield Queue !!")
         end
     end
@@ -683,6 +680,27 @@ function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
     if (BattlefieldMinimap) then
     -- RetroHelper_ShowBGMap()
     end
+end
+
+function RetroHelper_EventHandler.PLAYER_PVP_KILLS_CHANGED()
+    RetroHelper_Variables.pvpKillCount = RetroHelper_Variables.pvpKillCount + 1
+    local level = "|cffFFFFFFNice !"
+    if (RetroHelper_Variables.pvpKillCount >= 10) then
+        level = "|cffABF200Good Job !"
+    end
+    if (RetroHelper_Variables.pvpKillCount >= 20) then
+        level = "|cffA566FFGreat !"
+    end
+    if (RetroHelper_Variables.pvpKillCount >= 30) then
+        level = "|cffFFBB00Excellent !"
+    end
+    if (RetroHelper_Variables.pvpKillCount >= 40) then
+        level = "|cffFAED7DAmazing !!"
+    end
+    if (RetroHelper_Variables.pvpKillCount >= 50) then
+        level = "|cffF361DCIncredible !!!"
+    end
+    _print("|cff00D8FF" .. "[RetroHelper]: " .. level .. "|cffFFFFFF" .. "  Your Honorable Kills : " .. "|cffFF007F" .. RetroHelper_Variables.pvpKillCount .. "|cffFFFFFF" .. " !!")
 end
 
 function RetroHelper_EventHandler.PLAYER_UNGHOST()
@@ -744,34 +762,37 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
         RH_ScanBuff:SetPlayerBuff(index)
         local txt = RH_ScanBuffTextLeft2:GetText()
         if txt then
-            if (string.find(strlower(txt), "fear")) and (not string.find(strlower(txt), strlower("Immune"))) then                
+            if (string.find(strlower(txt), "fear")) and (not string.find(strlower(txt), strlower("Immune"))) then
                 isFeared = "Fear, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "flee")) and (not string.find(strlower(txt), strlower("Immune")))then
+            elseif (string.find(strlower(txt), "flee")) and (not string.find(strlower(txt), strlower("Immune"))) then
                 isFlee = "Fleeing, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "charm")) and (not string.find(strlower(txt), strlower("Immune")))then
+            elseif (string.find(strlower(txt), "charm")) and (not string.find(strlower(txt), strlower("Immune"))) then
                 isCharm = "Charmed, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), strlower("Cannot attack or cast spells"))) and (string.find(strlower(txt), strlower("Increased regeneration"))) and (not string.find(strlower(txt), strlower("Immune")))then
+            elseif
+                (string.find(strlower(txt), strlower("Cannot attack or cast spells"))) and (string.find(strlower(txt), strlower("Increased regeneration"))) and
+                    (not string.find(strlower(txt), strlower("Immune")))
+             then
                 isPoly = "polymorph, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "incapacitated")) and (not string.find(strlower(txt), strlower("Immune")))then
+            elseif (string.find(strlower(txt), "incapacitated")) and (not string.find(strlower(txt), strlower("Immune"))) then
                 isSap = "Sap / Gouge, "
                 isNeedWarning = true
             elseif (string.find(strlower(txt), "stun")) and (not string.find(strlower(txt), strlower("Immune"))) then
                 isStun = "Stun, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "disoriented")) and (not string.find(strlower(txt), strlower("Immune")))then
+            elseif (string.find(strlower(txt), "disoriented")) and (not string.find(strlower(txt), strlower("Immune"))) then
                 isBlind = "Blind, "
                 isNeedWarning = true
             elseif (string.find(strlower(txt), "horrified.")) and (not string.find(strlower(txt), strlower("Immune"))) then
                 isHorrifed = "Horrified, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "frozen")) and  (not string.find(strlower(txt), strlower("in place."))) and (not string.find(strlower(txt), strlower("Immune")))then
+            elseif (string.find(strlower(txt), "frozen")) and (not string.find(strlower(txt), strlower("in place."))) and (not string.find(strlower(txt), strlower("Immune"))) then
                 isFrozen = "Freezing Trap / Frost Nova, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "silence")) and (not string.find(strlower(txt), strlower("Immune")))then
+            elseif (string.find(strlower(txt), "silence")) and (not string.find(strlower(txt), strlower("Immune"))) then
                 isSilence = "Silence, "
                 isNeedWarning = true
             elseif (string.find(strlower(txt), strlower("Speaking Demonic increasing casting time"))) then
@@ -978,8 +999,6 @@ RetroHelper_OnUpdateHandler:SetScript(
         ----- add cfg
         if (GetTime() - RetroHelper_Variables.onUpdateTime >= 0.2) then
             RetroHelper_Variables.onUpdateTime = GetTime() + 0.2
-            local bgQueueStats = nil
-            local bStats, mapName = nil, nil
             local isDeserter = nil
             for i = 1, 16 do
                 local dBuff = UnitDebuff("player", i)
@@ -989,18 +1008,14 @@ RetroHelper_OnUpdateHandler:SetScript(
                     end
                 end
             end
-            for i = 1, MAX_BATTLEFIELD_QUEUES do
-                bStats, mapName = GetBattlefieldStatus(i)
-                if (bStats == "queued" or bStats == "confirm") then
-                    bgQueueStats = true
-                end
-            end
             if (GetNumBattlefieldStats() == 0) then
                 if (GetBattlefieldEstimatedWaitTime(1) == 0) then
-                    if (not bgQueueStats) and (not isDeserter) then
+                    if (not isDeserter) then
                         if (GetMinimapZoneText() ~= nil) then
-                            if (GetTime() - RetroHelper_Variables.battlegroundQueueTime >= 0.5) and (GetTime() - RetroHelper_Variables.battlegroundQueueTime <= 1) then
-                                RetroHelper_Queue()
+                            if (GetNumPartyMembers() == 0) and (GetNumRaidMembers() == 0) then
+                                if (RetroHelper_Variables.battlegroundQueueReady) then
+                                    RetroHelper_Queue()
+                                end
                             end
                         end
                     end
@@ -1021,12 +1036,38 @@ RetroHelper_OnUpdateHandler:SetScript(
         if (RetroHelper_GetCfg("CFG_FAST_BG", 1)) then
             local bg_winner = GetBattlefieldWinner()
             local winner_name = "Alliance"
+            local player_faction = UnitFactionGroup("player")
+            local result = nil
             if bg_winner ~= nil then
                 if bg_winner == 0 then
                     winner_name = "Horde"
                 end
-                UIErrorsFrame:Clear()
-                UIErrorsFrame:AddMessage("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Winner is " .. "|cffFFE400" .. winner_name)
+                --    UIErrorsFrame:Clear()
+                --  UIErrorsFrame:AddMessage("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Winner is " .. "|cffFFE400" .. winner_name)
+                if (winner_name == player_faction) then
+                    result = "You Win !!"
+                else
+                    result = "You Lose !!"
+                end
+
+                _printx(
+                    "|cff00D8FF" ..
+                        "[RetroHelper]: " ..
+                            "|cffFFFFFF" ..
+                                "Battlefield Result - " ..
+                                    "|cffFFE400" ..
+                                        result ..
+                                            " (" ..
+                                                "|cffFFFFFF" ..
+                                                    winner_name ..
+                                                        "|cffFFE400" ..
+                                                            ") " ..
+                                                                "|cffFFFFFF" ..
+                                                                    " Honorable kills : " ..
+                                                                        "|cffFFE400" ..
+                                                                            RetroHelper_Variables.pvpKillCount ..
+                                                                                "|cffFFFFFF" .. ", Total Honor Points : " .. "|cffFFE400" .. RetroHelper_Variables.honorPoint
+                )
                 LeaveBattlefield()
             end
         end
@@ -1055,6 +1096,11 @@ function RetroHelper_EventHandler.CHAT_MSG_CHANNEL(...)
                 RetroHelper_InviteToParty(arg2)
             end
         end
+    end
+    -- for world buffs
+    if (string.find(strlower(arg1), strlower("buff inc"))) then
+        PlaySoundFile("Sound\\Interface\\ReadyCheck.wav")
+        _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "World Buff Incoming Notify - MSG : [" .. "|cffFFE400" .. arg2 .. "|cff5CD1E5" .. "]: " .. arg1)
     end
 end
 
@@ -1218,6 +1264,12 @@ function RetroHelper_EventHandler.PLAYER_TARGET_CHANGED(...)
                 end
             end
         end
+    end
+end
+
+function RetroHelper_EventHandler.CHAT_MSG_COMBAT_HONOR_GAIN(...)    
+    for point in string.gfind(arg1, "(%d+)") do
+        RetroHelper_Variables.honorPoint = RetroHelper_Variables.honorPoint + tonumber(point)
     end
 end
 
@@ -1601,7 +1653,7 @@ function RetroHelper_EE()
                     RetroHelper_UseItem("Noggenfogger Elixir")
                 end
             end
-        elseif (not RetroHelper_Buffed("Rumsey Rum", "player")) and (not UnitAffectingCombat("player"))  and (not RetroHelper_Variables.isCurrentCasting)then
+        elseif (not RetroHelper_Buffed("Rumsey Rum", "player")) and (not UnitAffectingCombat("player")) and (not RetroHelper_Variables.isCurrentCasting) then
             RetroHelper_UseItem("Rumsey Rum")
         end
     end
@@ -1962,8 +2014,12 @@ function RetroHelper_InvTarget()
 end
 
 function RetroHelper_ChatCommand(cmd)
-    DEFAULT_CHAT_FRAME.editBox:SetText(cmd)
-    ChatEdit_SendText(DEFAULT_CHAT_FRAME.editBox, 0)
+    if (RetroHelper_Variables.lastchatCommand ~= cmd) or (GetTime() - RetroHelper_Variables.lastchatCommandTime >= 60) then
+        RetroHelper_Variables.lastchatCommand = cmd
+        RetroHelper_Variables.lastchatCommandTime = GetTime()
+        DEFAULT_CHAT_FRAME.editBox:SetText(cmd)
+        ChatEdit_SendText(DEFAULT_CHAT_FRAME.editBox, 0)
+    end
 end
 
 function RetroHelper_Queue()
@@ -2038,6 +2094,13 @@ function _sayx(msg)
     if (msg ~= RetroHelper_Variables.lastMessage) then
         RetroHelper_Variables.lastMessage = msg
         SendChatMessage(msg, "SAY")
+    end
+end
+
+function _printx(msg)
+    if (msg ~= RetroHelper_Variables.lastMessage) then
+        RetroHelper_Variables.lastMessage = msg
+        DEFAULT_CHAT_FRAME:AddMessage(msg)
     end
 end
 
