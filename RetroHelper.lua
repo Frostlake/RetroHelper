@@ -738,39 +738,40 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
     local isCOT = ""
 
     local num = 0
+
     while GetPlayerBuff(num) >= 0 do
         local index, untilCancelled = GetPlayerBuff(num)
         RH_ScanBuff:SetPlayerBuff(index)
         local txt = RH_ScanBuffTextLeft2:GetText()
         if txt then
-            if (string.find(strlower(txt), "fear")) then
+            if (string.find(strlower(txt), "fear")) and (not string.find(strlower(txt), strlower("Immune"))) then                
                 isFeared = "Fear, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "flee")) then
+            elseif (string.find(strlower(txt), "flee")) and (not string.find(strlower(txt), strlower("Immune")))then
                 isFlee = "Fleeing, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "charm")) then
+            elseif (string.find(strlower(txt), "charm")) and (not string.find(strlower(txt), strlower("Immune")))then
                 isCharm = "Charmed, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), strlower("Cannot attack or cast spells"))) and (string.find(strlower(txt), strlower("Increased regeneration"))) then
+            elseif (string.find(strlower(txt), strlower("Cannot attack or cast spells"))) and (string.find(strlower(txt), strlower("Increased regeneration"))) and (not string.find(strlower(txt), strlower("Immune")))then
                 isPoly = "polymorph, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "incapacitated")) then
+            elseif (string.find(strlower(txt), "incapacitated")) and (not string.find(strlower(txt), strlower("Immune")))then
                 isSap = "Sap / Gouge, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "stun")) then
+            elseif (string.find(strlower(txt), "stun")) and (not string.find(strlower(txt), strlower("Immune"))) then
                 isStun = "Stun, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "disoriented")) then
+            elseif (string.find(strlower(txt), "disoriented")) and (not string.find(strlower(txt), strlower("Immune")))then
                 isBlind = "Blind, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "horrified.")) then
+            elseif (string.find(strlower(txt), "horrified.")) and (not string.find(strlower(txt), strlower("Immune"))) then
                 isHorrifed = "Horrified, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "frozen")) and  not (string.find(strlower(txt), "in place."))then
+            elseif (string.find(strlower(txt), "frozen")) and  (not string.find(strlower(txt), strlower("in place."))) and (not string.find(strlower(txt), strlower("Immune")))then
                 isFrozen = "Freezing Trap / Frost Nova, "
                 isNeedWarning = true
-            elseif (string.find(strlower(txt), "silence")) then
+            elseif (string.find(strlower(txt), "silence")) and (not string.find(strlower(txt), strlower("Immune")))then
                 isSilence = "Silence, "
                 isNeedWarning = true
             elseif (string.find(strlower(txt), strlower("Speaking Demonic increasing casting time"))) then
