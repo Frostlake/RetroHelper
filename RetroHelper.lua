@@ -1108,7 +1108,7 @@ function RetroHelper_EventHandler.CHAT_MSG_COMBAT_HOSTILE_DEATH(...)
         end
 
         RetroHelper_Variables.killingBlowCount = RetroHelper_Variables.killingBlowCount + 1
-        _print("|cff00D8FF" .. "[RetroHelper]: " .. level.. "|cffFFFFFF" .. "You have slain [" .. "|cffFFE400" .. name .. "|cffFFFFFF" .. "], Killing Blows : " .. "|cff5CD1E5" .. arg1)
+        _print("|cff00D8FF" .. "[RetroHelper]: " .. level.. "|cffFFFFFF" .. " - You have slain [" .. "|cffFFE400" .. name .. "|cffFFFFFF" .. "], Killing Blows : " .. "|cff5CD1E5" .. RetroHelper_Variables.killingBlowCount)
         PlaySoundFile("Sound\\Interface\\ReadyCheck.wav")
     end
 end
