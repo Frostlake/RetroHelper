@@ -570,6 +570,8 @@ local RetroHelper_Events = {
     "SPELLCAST_STOP",
     "SPELLCAST_FAILED",
     "SPELLCAST_INTERRUPTED",
+    "SPELLCAST_CHANNEL_START",
+    "SPELLCAST_CHANNEL_STOP",    
     "MINIMAP_ZONE_CHANGED",
     "CHAT_MSG_SPELL_HOSTILEPLAYER_DAMAGE",
     "CHAT_MSG_COMBAT_CREATURE_VS_CREATURE_HITS"
@@ -703,7 +705,16 @@ function RetroHelper_EventHandler.SPELLCAST_START()
     RetroHelper_Variables.isCurrentCasting = true
 end
 
+function RetroHelper_EventHandler.SPELLCAST_CHANNEL_START()
+    RetroHelper_Variables.isCurrentCasting = true
+end
+
+
 function RetroHelper_EventHandler.SPELLCAST_STOP()
+    RetroHelper_Variables.isCurrentCasting = false
+end
+
+function RetroHelper_EventHandler.SPELLCAST_CHANNEL_STOP()
     RetroHelper_Variables.isCurrentCasting = false
 end
 
@@ -1146,7 +1157,7 @@ function RetroHelper_EventHandler.CHAT_MSG_CHANNEL(...)
             ((string.find(strlower(arg1), strlower("inc"))) or (string.find(strlower(arg1), strlower("in"))) or (string.find(strlower(arg1), strlower("min"))) or
                 (string.find(strlower(arg1), strlower("com"))))
      then
-        PlaySoundFile("Sound\\INTERFACE\\LevelUp2.ogg")
+        PlaySoundFile("Sound\\INTERFACE\\LevelUp2.wav")
         _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "World Buff Incoming Notify - MSG : [" .. "|cffFFE400" .. arg2 .. "|cffFFFFFF" .. "]: " .. "|cff5CD1E5" .. arg1)
     end
 end
@@ -2071,11 +2082,11 @@ end
 
 function RetroHelper_Queue()
     if (RetroHelper_GetCfg("BG_QUEUE_WARSONG_GULCH", 1) == true) then
-        RetroHelper_ChatCommand(".go warsong")
+        RetroHelper_ChatCommand("/s .go warsong")
     elseif (RetroHelper_GetCfg("BG_QUEUE_ARATHI_BUSIN", 1) == true) then
-        RetroHelper_ChatCommand(".go arathi")
+        RetroHelper_ChatCommand("/s .go arathi")
     elseif (RetroHelper_GetCfg("BG_QUEUE_ALTERAC_VALLEY", 1) == true) then
-        RetroHelper_ChatCommand(".go alterac")
+        RetroHelper_ChatCommand("/s .go alterac")
     end
 end
 
