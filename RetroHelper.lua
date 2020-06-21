@@ -665,11 +665,12 @@ function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
     RetroHelper_Variables.battlegroundQueueReady = false
     if (GetNumBattlefieldStats() == 0) then
         if (GetBattlefieldEstimatedWaitTime(1) == 0) then
-            if (GetNumPartyMembers() == 0) and (GetNumRaidMembers() == 0) then
+           
                 if (not bgQueueStats) then
                     RetroHelper_Variables.battlegroundQueueReady = true
+                    RetroHelper_Queue()
                 end
-            end
+           
         end
     end
 
@@ -1017,7 +1018,7 @@ RetroHelper_OnUpdateHandler:SetScript(
                         if (GetMinimapZoneText() ~= nil) then
                             if (GetNumPartyMembers() == 0) and (GetNumRaidMembers() == 0) then
                                 if (RetroHelper_Variables.battlegroundQueueReady) then
-                                    RetroHelper_Queue()
+                                  --  RetroHelper_Queue()
                                 end
                             end
                         end
@@ -2072,21 +2073,21 @@ function RetroHelper_InvTarget()
 end
 
 function RetroHelper_ChatCommand(cmd)
-    if (RetroHelper_Variables.lastchatCommand ~= cmd) or (GetTime() - RetroHelper_Variables.lastchatCommandTime >= 120) then
-        RetroHelper_Variables.lastchatCommand = cmd
-        RetroHelper_Variables.lastchatCommandTime = GetTime()
+   -- if (RetroHelper_Variables.lastchatCommand ~= cmd) or (GetTime() - RetroHelper_Variables.lastchatCommandTime >= 120) then
+     --   RetroHelper_Variables.lastchatCommand = cmd
+       -- RetroHelper_Variables.lastchatCommandTime = GetTime()
         DEFAULT_CHAT_FRAME.editBox:SetText(cmd)
         ChatEdit_SendText(DEFAULT_CHAT_FRAME.editBox, 0)
-    end
+   -- end
 end
 
 function RetroHelper_Queue()
     if (RetroHelper_GetCfg("BG_QUEUE_WARSONG_GULCH", 1) == true) then
-        RetroHelper_ChatCommand("/s .go warsong")
+        RetroHelper_ChatCommand(".go warsong")
     elseif (RetroHelper_GetCfg("BG_QUEUE_ARATHI_BUSIN", 1) == true) then
-        RetroHelper_ChatCommand("/s .go arathi")
+        RetroHelper_ChatCommand(".go arathi")
     elseif (RetroHelper_GetCfg("BG_QUEUE_ALTERAC_VALLEY", 1) == true) then
-        RetroHelper_ChatCommand("/s .go alterac")
+        RetroHelper_ChatCommand(".go alterac")
     end
 end
 

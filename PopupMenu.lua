@@ -125,7 +125,7 @@ function RetroHelper_CreateOptionsFrame()
 							end
 							this:SetChecked(true)
 							v2[4] = true
-							RetroHelper_Variables.lastchatCommand = ""
+							--RetroHelper_Variables.lastchatCommand = ""
 							RetroHelper_Queue()
 						end
 					end
