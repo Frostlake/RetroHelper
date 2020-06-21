@@ -522,6 +522,7 @@ RetroHelper_Variables = {
     trainerOpenTime = GetTime(),
     onUpdateTime = GetTime(),
     lastMessage = "",
+    lastMessage2 = "",
     battlegroundQueueReady = false,
     lastchatCommand = "",
     lastchatCommandTime = GetTime(),
@@ -817,17 +818,17 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
                 if (CheckInteractDistance("raid" .. i, 4)) and (not UnitIsDeadOrGhost("raid" .. i)) and (not UnitIsUnit("raid" .. i, "player")) then
                     local uClass = UnitClass("raid" .. i)
                     local uName = UnitName("raid" .. i)
-                    if (isFeared ~= "") or (isCharm ~= "") or (isPoly ~= "") or (isFrozen ~= "") or (isSilence ~= "") then
+                    if ((isFeared ~= "")and (not (RetroHelper_Debuffed("Psychic Scream", "player") or  RetroHelper_Debuffed("Intimidating Shout", "player")))) or (isCharm ~= "") or (isPoly ~= "") or (isFrozen ~= "") or (isSilence ~= "") then
                         if (uClass == "Paladin") or (uClass == "Priest") then
                             _whisperx("[RetroHelper]: Dispell My Debuff Please !!", uName)
                         end
                     elseif (isBlind ~= "") then
                         if (uClass == "Paladin") or (uClass == "Druid") or (uClass == "Shaman") then
-                            _whisperx("[RetroHelper]: Dispell Blind Please !!", uName)
+                            _whisperx("[RetroHelper]: Dispell [Blind] Please !!", uName)
                         end
                     elseif (isCOT ~= "") then
                         if (uClass == "Mage") or (uClass == "Druid") then
-                            _whisperx("[RetroHelper]: Dispell My Debuff Please !!", uName)
+                            _whisperx("[RetroHelper]: Dispell [Curse of Tongues] Please !!", uName)
                         end
                     end
                 end
@@ -2064,6 +2065,37 @@ function RetroHelper_Buffed(bName, unit)
     tooltip:Hide()
 end
 
+function RetroHelper_Debuffed(bName, unit)
+    local buff = strlower(bName)
+    local tooltip = RH_Scan
+    local textleft1 = getglobal(tooltip:GetName() .. "TextLeft1")
+    if (not unit) then
+        unit = "player"
+    end
+
+    tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+    tooltip:SetTrackingSpell()
+    local b = textleft1:GetText()
+    if (b and strfind(strlower(b), buff)) then
+        tooltip:Hide()
+        return "track", b
+    end
+    local c = nil
+    for i = 1, 16 do
+        tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+        tooltip:SetUnitDebuff(unit, i)
+        b = textleft1:GetText()
+        tooltip:Hide()
+        if (b and strfind(strlower(b), buff)) then
+            return "debuff", i, b
+        elseif (c == b) then
+            break
+        end
+        --c = b;
+    end
+    tooltip:Hide()
+end
+
 function RetroHelper_Repair()
     local function isNeedRepair()
         if (UnitIsDeadOrGhost("player")) then
@@ -2092,8 +2124,8 @@ function RetroHelper_ShowBGMap()
 end
 
 function _sayx(msg)
-    if (msg ~= RetroHelper_Variables.lastMessage) then
-        RetroHelper_Variables.lastMessage = msg
+    if (msg ~= RetroHelper_Variables.lastMessage2) then
+        RetroHelper_Variables.lastMessage2 = msg
         SendChatMessage(msg, "SAY")
     end
 end
