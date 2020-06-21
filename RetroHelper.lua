@@ -1058,11 +1058,11 @@ RetroHelper_OnUpdateHandler:SetScript(
                                                                     " Killing Blows : " ..
                                                                         "|cffFFE400" ..
                                                                             RetroHelper_Variables.killingBlowCount ..
-                                                                            "|cffFFFFFF" ..
-                                                                    " Honorable kills : " ..
-                                                                        "|cffFFE400" ..
-                                                                            RetroHelper_Variables.pvpKillCount ..
-                                                                                "|cffFFFFFF" .. ", Total Honor Points : " .. "|cffFFE400" .. RetroHelper_Variables.honorPoint
+                                                                                "|cffFFFFFF" ..
+                                                                                    " Honorable kills : " ..
+                                                                                        "|cffFFE400" ..
+                                                                                            RetroHelper_Variables.pvpKillCount ..
+                                                                                                "|cffFFFFFF" .. ", Total Honor Points : " .. "|cffFFE400" .. RetroHelper_Variables.honorPoint
                 )
                 LeaveBattlefield()
             end
@@ -1084,32 +1084,48 @@ end
 
 function RetroHelper_EventHandler.CHAT_MSG_COMBAT_HOSTILE_DEATH(...)
     for name in string.gfind(arg1, "You have slain (.+)!") do
-        local level = "|cffFFFFFFNice !"
-        if (RetroHelper_Variables.killingBlowCount >= 5) then
-            level = "|cffABF200Good Job !"
-        end
-        if (RetroHelper_Variables.killingBlowCount >= 10) then
-            level = "|cffA566FFGreat !"
-        end
-        if (RetroHelper_Variables.killingBlowCount >= 15) then
-            level = "|cffFFBB00Excellent !"
-        end
-        if (RetroHelper_Variables.killingBlowCount >= 20) then
-            level = "|cffFAED7DAmazing !!"
-        end
-        if (RetroHelper_Variables.killingBlowCount >= 25) then
-            level = "|cffF361DCIncredible !!!"
-        end
-        if (RetroHelper_Variables.killingBlowCount >= 35) then
-            level = "|cff86E57FKilling Spree !!!"
-        end
-        if (RetroHelper_Variables.killingBlowCount >= 40) then
-            level = "|cff0054FFGOD OF WAR !!!"
+        local tName = UnitName("target")
+        local tChanged = false
+        if (not tName) or (tName ~= name) then
+            tChanged = true
+            TargetByName(name, 1)
         end
 
-        RetroHelper_Variables.killingBlowCount = RetroHelper_Variables.killingBlowCount + 1
-        _print("|cff00D8FF" .. "[RetroHelper]: " .. level.. "|cffFFFFFF" .. " - You have slain [" .. "|cffFFE400" .. name .. "|cffFFFFFF" .. "], Killing Blows : " .. "|cff5CD1E5" .. RetroHelper_Variables.killingBlowCount)
-        PlaySoundFile("Sound\\Interface\\ReadyCheck.wav")
+        if (not RetroHelper_IsPet()) and (UnitIsPlayer("target")) then
+            local level = "|cffFFFFFFNice !"
+            if (RetroHelper_Variables.killingBlowCount >= 5) then
+                level = "|cffABF200Good Job !"
+            end
+            if (RetroHelper_Variables.killingBlowCount >= 10) then
+                level = "|cffA566FFGreat !"
+            end
+            if (RetroHelper_Variables.killingBlowCount >= 15) then
+                level = "|cffFFBB00Excellent !"
+            end
+            if (RetroHelper_Variables.killingBlowCount >= 20) then
+                level = "|cffFAED7DAmazing !!"
+            end
+            if (RetroHelper_Variables.killingBlowCount >= 25) then
+                level = "|cffF361DCIncredible !!!"
+            end
+            if (RetroHelper_Variables.killingBlowCount >= 35) then
+                level = "|cff86E57FKilling Spree !!!"
+            end
+            if (RetroHelper_Variables.killingBlowCount >= 40) then
+                level = "|cff0054FFGOD OF WAR !!!"
+            end
+
+            RetroHelper_Variables.killingBlowCount = RetroHelper_Variables.killingBlowCount + 1
+            _print(
+                "|cff00D8FF" ..
+                    "[RetroHelper]: " ..
+                        level .. "|cffFFFFFF" .. " - You have slain [" .. "|cffFFE400" .. name .. "|cffFFFFFF" .. "], Killing Blows : " .. "|cff5CD1E5" .. RetroHelper_Variables.killingBlowCount
+            )
+            PlaySoundFile("Sound\\Interface\\ReadyCheck.wav")
+        end
+        if(tChanged)then
+            TargetLastTarget()
+        end
     end
 end
 
@@ -1130,7 +1146,7 @@ function RetroHelper_EventHandler.CHAT_MSG_CHANNEL(...)
             ((string.find(strlower(arg1), strlower("inc"))) or (string.find(strlower(arg1), strlower("in"))) or (string.find(strlower(arg1), strlower("min"))) or
                 (string.find(strlower(arg1), strlower("com"))))
      then
-        PlaySoundFile("Sound\\INTERFACE\\LevelUp2.ogg") 
+        PlaySoundFile("Sound\\INTERFACE\\LevelUp2.ogg")
         _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "World Buff Incoming Notify - MSG : [" .. "|cffFFE400" .. arg2 .. "|cffFFFFFF" .. "]: " .. "|cff5CD1E5" .. arg1)
     end
 end
@@ -1250,6 +1266,15 @@ function RetroHelper_IsQuestNPC()
     return false
 end
 
+function RetroHelper_IsPet()
+    UnitType = UnitCreatureType("Target")
+    if (UnitType ~= nill and ((string.find(UnitType, "Beast") and (UnitClass("target") ~= "Druid")) or string.find(UnitType, "Demon") or string.find(UnitType, "Not specified"))) then
+        return true
+    else
+        return false
+    end
+end
+
 function RetroHelper_EventHandler.PLAYER_TARGET_CHANGED(...)
     if (RetroHelper_IsQuestNPC()) then
         _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "While the " .. "|cffFFE400" .. "[Shift Key]" .. "|cffFFFFFF" .. " pressed, the quest will not be processed automatically.")
@@ -1265,19 +1290,10 @@ function RetroHelper_EventHandler.PLAYER_TARGET_CHANGED(...)
         if (GetNumBattlefieldStats() ~= 0) then
             local name = GetUnitName("target")
             if (name ~= nil) then
-                local function IsPet()
-                    UnitType = UnitCreatureType("Target")
-                    if (UnitType ~= nill and ((string.find(UnitType, "Beast") and (UnitClass("target") ~= "Druid")) or string.find(UnitType, "Demon") or string.find(UnitType, "Not specified"))) then
-                        return true
-                    else
-                        return false
-                    end
-                end
-
                 if
                     (((not UnitIsPlayer("target")) and ((UnitLevel("target") <= 55) and (not UnitAffectingCombat("target")))) or
                         (UnitIsPlayer("target") and (UnitIsDead("target") and (not UnitClass("target") == "Hunter"))) or
-                        (IsPet()))
+                        (RetroHelper_IsPet()))
                  then
                     ClearTarget()
                 end
