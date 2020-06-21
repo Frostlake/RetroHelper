@@ -528,8 +528,8 @@ RetroHelper_Variables = {
     lastchatCommandTime = GetTime(),
     isCurrentCasting = false,
     pvpKillCount = 0,
+    killingBlowCount = 0,
     honorPoint = 0
-    
 }
 
 local RetroHelper_RecentInvList = {}
@@ -565,6 +565,7 @@ local RetroHelper_Events = {
     "UPDATE_INVENTORY_ALERTS",
     "PLAYER_AURAS_CHANGED",
     "PLAYER_PVP_KILLS_CHANGED",
+    "CHAT_MSG_COMBAT_HOSTILE_DEATH",
     "SPELLCAST_START",
     "SPELLCAST_STOP",
     "SPELLCAST_FAILED",
@@ -673,7 +674,8 @@ function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
     if (GetNumBattlefieldStats() == 0) then
         if (GetBattlefieldEstimatedWaitTime(1) == 0) then
             RetroHelper_Variables.pvpKillCount = 0
-            RetroHelper_Variables.honorPoint = 0            
+            RetroHelper_Variables.honorPoint = 0
+            RetroHelper_Variables.killingBlowCount = 0
         --_print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Auto Battlefield Queue !!")
         end
     end
@@ -686,23 +688,7 @@ end
 
 function RetroHelper_EventHandler.PLAYER_PVP_KILLS_CHANGED()
     RetroHelper_Variables.pvpKillCount = RetroHelper_Variables.pvpKillCount + 1
-    local level = "|cffFFFFFFNice !"
-    if (RetroHelper_Variables.pvpKillCount >= 10) then
-        level = "|cffABF200Good Job !"
-    end
-    if (RetroHelper_Variables.pvpKillCount >= 20) then
-        level = "|cffA566FFGreat !"
-    end
-    if (RetroHelper_Variables.pvpKillCount >= 30) then
-        level = "|cffFFBB00Excellent !"
-    end
-    if (RetroHelper_Variables.pvpKillCount >= 40) then
-        level = "|cffFAED7DAmazing !!"
-    end
-    if (RetroHelper_Variables.pvpKillCount >= 50) then
-        level = "|cffF361DCIncredible !!!"
-    end
-    _print("|cff00D8FF" .. "[RetroHelper]: " .. level .. "|cffFFFFFF" .. "  Your Honorable Kills : " .. "|cffFF007F" .. RetroHelper_Variables.pvpKillCount .. "|cffFFFFFF" .. " !!")
+    _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "Your Honorable Kills : " .. "|cffFF007F" .. RetroHelper_Variables.pvpKillCount .. "|cffFFFFFF" .. " !!")
 end
 
 function RetroHelper_EventHandler.PLAYER_UNGHOST()
@@ -818,7 +804,11 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
                 if (CheckInteractDistance("raid" .. i, 4)) and (not UnitIsDeadOrGhost("raid" .. i)) and (not UnitIsUnit("raid" .. i, "player")) then
                     local uClass = UnitClass("raid" .. i)
                     local uName = UnitName("raid" .. i)
-                    if ((isFeared ~= "")and (not (RetroHelper_Debuffed("Psychic Scream", "player") or  RetroHelper_Debuffed("Intimidating Shout", "player")))) or (isCharm ~= "") or (isPoly ~= "") or (isFrozen ~= "") or (isSilence ~= "") then
+                    if
+                        ((isFeared ~= "") and (not (RetroHelper_Debuffed("Psychic Scream", "player") or RetroHelper_Debuffed("Intimidating Shout", "player")))) or (isCharm ~= "") or (isPoly ~= "") or
+                            (isFrozen ~= "") or
+                            (isSilence ~= "")
+                     then
                         if (uClass == "Paladin") or (uClass == "Priest") then
                             _whisperx("[RetroHelper]: Dispell My Debuff Please !!", uName)
                         end
@@ -1051,7 +1041,7 @@ RetroHelper_OnUpdateHandler:SetScript(
                 else
                     result = "You Lose !!"
                 end
-               
+
                 _printx(
                     "|cff00D8FF" ..
                         "[RetroHelper]: " ..
@@ -1065,6 +1055,10 @@ RetroHelper_OnUpdateHandler:SetScript(
                                                         "|cffFFE400" ..
                                                             ") " ..
                                                                 "|cffFFFFFF" ..
+                                                                    " Killing Blows : " ..
+                                                                        "|cffFFE400" ..
+                                                                            RetroHelper_Variables.killingBlowCount ..
+                                                                            "|cffFFFFFF" ..
                                                                     " Honorable kills : " ..
                                                                         "|cffFFE400" ..
                                                                             RetroHelper_Variables.pvpKillCount ..
@@ -1088,6 +1082,37 @@ function RetroHelper_UnregisterEvents()
     end
 end
 
+function RetroHelper_EventHandler.CHAT_MSG_COMBAT_HOSTILE_DEATH(...)
+    for name in string.gfind(arg1, "You have slain (.+)!") do
+        local level = "|cffFFFFFFNice !"
+        if (RetroHelper_Variables.killingBlowCount >= 5) then
+            level = "|cffABF200Good Job !"
+        end
+        if (RetroHelper_Variables.killingBlowCount >= 10) then
+            level = "|cffA566FFGreat !"
+        end
+        if (RetroHelper_Variables.killingBlowCount >= 15) then
+            level = "|cffFFBB00Excellent !"
+        end
+        if (RetroHelper_Variables.killingBlowCount >= 20) then
+            level = "|cffFAED7DAmazing !!"
+        end
+        if (RetroHelper_Variables.killingBlowCount >= 25) then
+            level = "|cffF361DCIncredible !!!"
+        end
+        if (RetroHelper_Variables.killingBlowCount >= 35) then
+            level = "|cff86E57FKilling Spree !!!"
+        end
+        if (RetroHelper_Variables.killingBlowCount >= 40) then
+            level = "|cff0054FFGOD OF WAR !!!"
+        end
+
+        RetroHelper_Variables.killingBlowCount = RetroHelper_Variables.killingBlowCount + 1
+        _print("|cff00D8FF" .. "[RetroHelper]: " .. level.. "|cffFFFFFF" .. "You have slain [" .. "|cffFFE400" .. name .. "|cffFFFFFF" .. "], Killing Blows : " .. "|cff5CD1E5" .. arg1)
+        PlaySoundFile("Sound\\Interface\\ReadyCheck.wav")
+    end
+end
+
 function RetroHelper_EventHandler.CHAT_MSG_CHANNEL(...)
     if (arg1 == nil) or (arg2 == RetroHelper_Variables.playerName) then
         return
@@ -1100,9 +1125,13 @@ function RetroHelper_EventHandler.CHAT_MSG_CHANNEL(...)
         end
     end
     -- for world buffs
-    if (string.find(strlower(arg1), strlower("buff"))) and ((string.find(strlower(arg1), strlower("inc"))) or(string.find(strlower(arg1), strlower("in"))) or(string.find(strlower(arg1), strlower("min")))  or  (string.find(strlower(arg1), strlower("com"))))  then
-        PlaySoundFile("Sound\\Interface\\ReadyCheck.wav")
-        _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "World Buff Incoming Notify - MSG : [" .. "|cffFFE400" .. arg2 .."|cffFFFFFF".."]: ".. "|cff5CD1E5" .. arg1)
+    if
+        (string.find(strlower(arg1), strlower("buff"))) and
+            ((string.find(strlower(arg1), strlower("inc"))) or (string.find(strlower(arg1), strlower("in"))) or (string.find(strlower(arg1), strlower("min"))) or
+                (string.find(strlower(arg1), strlower("com"))))
+     then
+        PlaySoundFile("Sound\\INTERFACE\\LevelUp2.ogg") 
+        _print("|cff00D8FF" .. "[RetroHelper]: " .. "|cffFFFFFF" .. "World Buff Incoming Notify - MSG : [" .. "|cffFFE400" .. arg2 .. "|cffFFFFFF" .. "]: " .. "|cff5CD1E5" .. arg1)
     end
 end
 
@@ -1269,7 +1298,7 @@ function RetroHelper_EventHandler.PLAYER_TARGET_CHANGED(...)
     end
 end
 
-function RetroHelper_EventHandler.CHAT_MSG_COMBAT_HONOR_GAIN(...)    
+function RetroHelper_EventHandler.CHAT_MSG_COMBAT_HONOR_GAIN(...)
     for point in string.gfind(arg1, "(%d+)") do
         RetroHelper_Variables.honorPoint = RetroHelper_Variables.honorPoint + tonumber(point)
     end
