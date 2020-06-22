@@ -571,7 +571,7 @@ local RetroHelper_Events = {
     "SPELLCAST_FAILED",
     "SPELLCAST_INTERRUPTED",
     "SPELLCAST_CHANNEL_START",
-    "SPELLCAST_CHANNEL_STOP",    
+    "SPELLCAST_CHANNEL_STOP",
     "MINIMAP_ZONE_CHANGED",
     "CHAT_MSG_SPELL_HOSTILEPLAYER_DAMAGE",
     "CHAT_MSG_COMBAT_CREATURE_VS_CREATURE_HITS"
@@ -665,12 +665,10 @@ function RetroHelper_EventHandler.MINIMAP_ZONE_CHANGED()
     RetroHelper_Variables.battlegroundQueueReady = false
     if (GetNumBattlefieldStats() == 0) then
         if (GetBattlefieldEstimatedWaitTime(1) == 0) then
-           
-                if (not bgQueueStats) then
-                    RetroHelper_Variables.battlegroundQueueReady = true
-                    RetroHelper_Queue()
-                end
-           
+            if (not bgQueueStats) then
+                RetroHelper_Variables.battlegroundQueueReady = true
+                RetroHelper_Queue()
+            end
         end
     end
 
@@ -709,7 +707,6 @@ end
 function RetroHelper_EventHandler.SPELLCAST_CHANNEL_START()
     RetroHelper_Variables.isCurrentCasting = true
 end
-
 
 function RetroHelper_EventHandler.SPELLCAST_STOP()
     RetroHelper_Variables.isCurrentCasting = false
@@ -762,7 +759,7 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
         RH_ScanBuff:SetPlayerBuff(index)
         local txt = RH_ScanBuffTextLeft2:GetText()
         if txt then
-            if (string.find(strlower(txt), "fear")) and ((not string.find(strlower(txt), strlower("warded")))or (not string.find(strlower(txt), strlower("Immune")))) then
+            if (string.find(strlower(txt), "fear")) and ((not string.find(strlower(txt), strlower("warded"))) or (not string.find(strlower(txt), strlower("Immune")))) then
                 isFeared = "Fear, "
                 isNeedWarning = true
             elseif (string.find(strlower(txt), "flee")) and (not string.find(strlower(txt), strlower("Immune"))) then
@@ -829,7 +826,8 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
                             _whisperx("[RetroHelper]: Dispell [Blind] Please !!", uName)
                         end
                     elseif (isCOT ~= "") then
-                        if (uClass == "Mage") or (uClass == "Druid") then
+                        local uClass = UnitClass("player")
+                        if (uClass == "Mage") or (uClass == "Druid") and (not (uClass == "Mage" or uClass == "Druid")) then
                             _whisperx("[RetroHelper]: Dispell [Curse of Tongues] Please !!", uName)
                         end
                     end
@@ -1018,7 +1016,7 @@ RetroHelper_OnUpdateHandler:SetScript(
                         if (GetMinimapZoneText() ~= nil) then
                             if (GetNumPartyMembers() == 0) and (GetNumRaidMembers() == 0) then
                                 if (RetroHelper_Variables.battlegroundQueueReady) then
-                                  --  RetroHelper_Queue()
+                                --  RetroHelper_Queue()
                                 end
                             end
                         end
@@ -1135,7 +1133,7 @@ function RetroHelper_EventHandler.CHAT_MSG_COMBAT_HOSTILE_DEATH(...)
             )
             PlaySoundFile("Sound\\Interface\\ReadyCheck.wav")
         end
-        if(tChanged)then
+        if (tChanged) then
             TargetLastTarget()
         end
     end
@@ -1712,7 +1710,9 @@ function RetroHelper_EE()
                     RetroHelper_UseItem("Noggenfogger Elixir")
                 end
             end
-        elseif (not RetroHelper_Buffed("Rumsey Rum", "player")) and (not RetroHelper_Buffed("Graccu", "player")) and (not UnitAffectingCombat("player")) and (not RetroHelper_Variables.isCurrentCasting) then
+        elseif
+            (not RetroHelper_Buffed("Rumsey Rum", "player")) and (not RetroHelper_Buffed("Graccu", "player")) and (not UnitAffectingCombat("player")) and (not RetroHelper_Variables.isCurrentCasting)
+         then
             RetroHelper_UseItem("Rumsey Rum")
         end
     end
@@ -2073,12 +2073,12 @@ function RetroHelper_InvTarget()
 end
 
 function RetroHelper_ChatCommand(cmd)
-   -- if (RetroHelper_Variables.lastchatCommand ~= cmd) or (GetTime() - RetroHelper_Variables.lastchatCommandTime >= 120) then
-     --   RetroHelper_Variables.lastchatCommand = cmd
-       -- RetroHelper_Variables.lastchatCommandTime = GetTime()
-        DEFAULT_CHAT_FRAME.editBox:SetText(cmd)
-        ChatEdit_SendText(DEFAULT_CHAT_FRAME.editBox, 0)
-   -- end
+    -- if (RetroHelper_Variables.lastchatCommand ~= cmd) or (GetTime() - RetroHelper_Variables.lastchatCommandTime >= 120) then
+    --   RetroHelper_Variables.lastchatCommand = cmd
+    -- RetroHelper_Variables.lastchatCommandTime = GetTime()
+    DEFAULT_CHAT_FRAME.editBox:SetText(cmd)
+    ChatEdit_SendText(DEFAULT_CHAT_FRAME.editBox, 0)
+    -- end
 end
 
 function RetroHelper_Queue()
