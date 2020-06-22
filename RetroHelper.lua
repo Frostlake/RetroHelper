@@ -1712,7 +1712,7 @@ function RetroHelper_EE()
                     RetroHelper_UseItem("Noggenfogger Elixir")
                 end
             end
-        elseif (not RetroHelper_Buffed("Rumsey Rum", "player")) and (not UnitAffectingCombat("player")) and (not RetroHelper_Variables.isCurrentCasting) then
+        elseif (not RetroHelper_Buffed("Rumsey Rum", "player")) and (not RetroHelper_Buffed("Graccu", "player")) and (not UnitAffectingCombat("player")) and (not RetroHelper_Variables.isCurrentCasting) then
             RetroHelper_UseItem("Rumsey Rum")
         end
     end
