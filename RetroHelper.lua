@@ -762,7 +762,7 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
         RH_ScanBuff:SetPlayerBuff(index)
         local txt = RH_ScanBuffTextLeft2:GetText()
         if txt then
-            if (string.find(strlower(txt), "fear")) and (not string.find(strlower(txt), strlower("Immune"))) then
+            if (string.find(strlower(txt), "fear")) and ((not string.find(strlower(txt), strlower("warded")))or (not string.find(strlower(txt), strlower("Immune")))) then
                 isFeared = "Fear, "
                 isNeedWarning = true
             elseif (string.find(strlower(txt), "flee")) and (not string.find(strlower(txt), strlower("Immune"))) then
