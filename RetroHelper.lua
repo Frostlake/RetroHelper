@@ -826,8 +826,8 @@ function RetroHelper_EventHandler.PLAYER_AURAS_CHANGED()
                             _whisperx("[RetroHelper]: Dispell [Blind] Please !!", uName)
                         end
                     elseif (isCOT ~= "") then
-                        local uClass = UnitClass("player")
-                        if (uClass == "Mage") or (uClass == "Druid") and (not (uClass == "Mage" or uClass == "Druid")) then
+                        local pClass = UnitClass("player")
+                        if (pClass == "Paladin" or pClass == "Priest" or pClass == "Warlock" or pClass == "Shaman" )and (uClass == "Mage" or uClass == "Druid") then
                             _whisperx("[RetroHelper]: Dispell [Curse of Tongues] Please !!", uName)
                         end
                     end
@@ -1027,8 +1027,8 @@ RetroHelper_OnUpdateHandler:SetScript(
         -- Do Something
         end
         -----
-        if (RetroHelper_Variables.isShop) and (GetTime() - RetroHelper_Variables.shopOpenTime >= 0.25) and (not CursorHasItem()) then
-            RetroHelper_Variables.shopOpenTime = GetTime() + 0.25
+        if (RetroHelper_Variables.isShop) and (GetTime() - RetroHelper_Variables.shopOpenTime >= 0.8) and (not CursorHasItem()) then
+            RetroHelper_Variables.shopOpenTime = GetTime() + 0.8
             RetroHelper_ShopRepair()
         end
         if (RetroHelper_Variables.isTrainer) and (GetTime() - RetroHelper_Variables.trainerOpenTime >= 0.25) then
@@ -1152,8 +1152,8 @@ function RetroHelper_EventHandler.CHAT_MSG_CHANNEL(...)
     end
     -- for world buffs
     if
-        (string.find(strlower(arg1), strlower("buff"))) and
-            ((string.find(strlower(arg1), strlower("inc"))) or (string.find(strlower(arg1), strlower("in"))) or (string.find(strlower(arg1), strlower("min"))) or
+        ((string.find(strlower(arg1), strlower("buff")))or (string.find(strlower(arg1), strlower("ony")))or (string.find(strlower(arg1), strlower("zg")))or (string.find(strlower(arg1), strlower("nef")))) and
+            ((string.find(strlower(arg1), strlower("inc")))or (string.find(strlower(arg1), strlower("in"))) or (string.find(strlower(arg1), strlower("work"))) or (string.find(strlower(arg1), strlower("min"))) or
                 (string.find(strlower(arg1), strlower("com"))))
      then
         PlaySoundFile("Sound\\INTERFACE\\LevelUp2.wav")
@@ -1347,6 +1347,7 @@ function RetroHelper_EventHandler.CHAT_MSG_SYSTEM(...)
     if (arg1 ~= nil) then
         if (arg1 == "You are now AFK: Away from Keyboard") then
             RetroHelper_Variables.isPlayerAFK = true
+            SendChatMessage("[RetroHelper] Player is AFK now !!", "GUILD")
         elseif (arg1 == "You are no longer AFK.") then
             RetroHelper_Variables.isPlayerAFK = false
         elseif (string.find(arg1, "joins the party.")) and (RetroHelper_GetCfg("CFG_AUTO_GREETINGS", 1) == true) then
@@ -1879,8 +1880,7 @@ function RetroHelper_ShopRepair()
             local nDemonicFigurine = 0
             -- faid
             local nBGHpPotion = 0
-            local nBGMpPotion = 0
-            local nWarsongGulchBandage = 0
+            local nBGMpPotion = 0            
             local nNoggen = 0
             local nFeather = 0
 
@@ -1895,8 +1895,7 @@ function RetroHelper_ShopRepair()
             local nArcanePowder = 0
             -- Shaman
             local nAnkh = 0
-            -- Paladin
-            local nDivinity = 0
+            -- Paladin            
             local nKings = 0
             -- Rogue
             local nFlashPowder = 0
@@ -1920,10 +1919,7 @@ function RetroHelper_ShopRepair()
                         end
                         if (string.find(link, "Mana Draught")) then
                             nBGMpPotion = nBGMpPotion + getCount(i, j)
-                        end
-                        if (string.find(link, "Warsong Gulch Runecloth Bandage")) then
-                            nWarsongGulchBandage = nWarsongGulchBandage + getCount(i, j)
-                        end
+                        end                        
                         if (string.find(link, "Noggenfogger")) then
                             nNoggen = nNoggen + getCount(i, j)
                         end
@@ -1951,9 +1947,7 @@ function RetroHelper_ShopRepair()
                         if (string.find(link, "Ankh")) then
                             nAnkh = nAnkh + getCount(i, j)
                         end
-                        if (string.find(link, "Symbol of Divinity")) then
-                            nDivinity = nDivinity + getCount(i, j)
-                        end
+                      
                         if (string.find(link, "Symbol of Kings")) then
                             nKings = nKings + getCount(i, j)
                         end
@@ -1982,9 +1976,7 @@ function RetroHelper_ShopRepair()
             elseif (nBGHpPotion < 10) and (isRich) and (IsSelling("Healing Draught")) then
                 buyItem("Healing Draught", nBGHpPotion, 10, 10)
             elseif (nBGMpPotion < 10) and (not (class == "Warrior" or class == "Rogue")) and (isRich) and (IsSelling("Mana Draught")) then
-                buyItem("Mana Draught", nBGMpPotion, 10, 10)
-            elseif (nWarsongGulchBandage < 40) and (isRich) and (IsSelling("Warsong Gulch Runecloth Bandage")) then
-                buyItem("Warsong Gulch Runecloth Bandage", nWarsongGulchBandage, 40, 1)
+                buyItem("Mana Draught", nBGMpPotion, 10, 10)            
             elseif (nNoggen < 200) and (isRich) and (IsSelling("Noggenfogger")) then
                 buyItem("Noggenfogger", nNoggen, 200, 200)
             elseif (nCandle < 200) and (class == "Priest") and (isRich) and (IsSelling("Sacred Candle")) then
@@ -2002,9 +1994,7 @@ function RetroHelper_ShopRepair()
             elseif (nFeather < 200) and (class == "Mage" or class == "Priest") and (isRich) and (IsSelling("Light Feather")) then
                 buyItem("Light Feather", nFeather, 200, 20)
             elseif (nAnkh < 200) and (class == "Shaman") and (isRich) and (IsSelling("Ankh")) then
-                buyItem("Ankh", nAnkh, 200, 5)
-            elseif (nDivinity < 10) and (class == "Paladin") and (isRich) and (IsSelling("Symbol of Divinity")) then
-                buyItem("Symbol of Divinity", nDivinity, 10, 5)
+                buyItem("Ankh", nAnkh, 200, 5)           
             elseif (nKings < 400) and (class == "Paladin") and (isRich) and (IsSelling("Symbol of Kings")) then
                 --elseif (nShard < 200) and (class == "Warlock") and (IsSelling("Soul Shard")) then
                 --  buyItem("Soul Shard", nShard, 200, 1)
